@@ -251,7 +251,7 @@
         candidate.setAttribute("aria-pressed", String(active));
       });
       projectCards.forEach((card) => {
-        const visible = filter === "todos" || card.dataset.category === filter;
+        const visible = filter === "todos" || card.dataset.category.split(/\s+/).includes(filter);
         card.classList.toggle("is-hidden", !visible);
       });
     });
