@@ -39,45 +39,75 @@ function makeCard(item, group, featured) {
   const card = document.createElement('article');
   card.className = `reel-card${featured ? ' featured-reel' : ''}`;
   card.innerHTML = `
-    <button class="reel-cover" type="button" aria-label="Reproduzir registro ${item.number} do CIM, ${group.period.toLowerCase()} de ${group.year}">
-      <span class="cover-id">CIM / ${group.year} / ${item.number}</span>
-      <span class="play-icon" aria-hidden="true">▶</span>
-      <span class="cover-hint">REPRODUZIR AQUI ↗</span>
-    </button>
+    <div class="reel-player" data-reel-url="${url}" data-reel-number="${item.number}" aria-label="Vídeo ${item.number} do CIM, ${group.period.toLowerCase()} de ${group.year}">
+      <span class="player-loading">Carregando vídeo do Instagram…</span>
+    </div>
     <div class="reel-info">
       <div><div class="reel-info-top"><span>REGISTRO ${item.number}</span><span>${group.period} ${group.year}</span></div>
         <h3>Cobertura do CIM</h3><p>Captação, edição e publicação de conteúdo para o Curso de Imersão Missionária.</p></div>
       <a href="${url}" target="_blank" rel="noopener noreferrer" aria-label="Abrir registro ${item.number} na publicação original do Instagram">Abrir publicação original <span aria-hidden="true">↗</span></a>
     </div>`;
+  return card;
+}
 
-  card.querySelector('.reel-cover').addEventListener('click', async () => {
-    const player = document.createElement('div');
-    player.className = 'reel-player';
-    const quote = document.createElement('blockquote');
-    quote.className = 'instagram-media';
-    quote.dataset.instgrmPermalink = url;
-    quote.dataset.instgrmVersion = '14';
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = 'Assistir ao vídeo no Instagram';
-    quote.append(link);
-    player.append(quote);
-    card.querySelector('.reel-cover').replaceWith(player);
-    try {
-      await ensureInstagramEmbed();
-      window.instgrm.Embeds.process();
-      window.setTimeout(() => {
-        if (player.isConnected && !player.querySelector('iframe')) {
-          player.innerHTML = `<p class="player-message">O Instagram não disponibilizou o player aqui. <a href="${url}" target="_blank" rel="noopener noreferrer">Assista à publicação original ↗</a></p>`;
-        }
-      }, 8000);
-    } catch {
-      player.innerHTML = `<p class="player-message">O player não carregou. <a href="${url}" target="_blank" rel="noopener noreferrer">Assista à publicação original ↗</a></p>`;
+function showPlayerFallback(player) {
+  if (!player.isConnected || player.querySelector('iframe')) return;
+  const url = player.dataset.reelUrl;
+  player.innerHTML = `<p class="player-message">O Instagram não liberou a prévia deste vídeo aqui. <a href="${url}" target="_blank" rel="noopener noreferrer">Assistir na publicação original ↗</a></p>`;
+}
+
+async function mountPlayer(player) {
+  if (!player.isConnected || player.dataset.started) return;
+  player.dataset.started = 'true';
+  const quote = document.createElement('blockquote');
+  quote.className = 'instagram-media';
+  quote.dataset.instgrmPermalink = player.dataset.reelUrl;
+  quote.dataset.instgrmVersion = '14';
+  const link = document.createElement('a');
+  link.href = player.dataset.reelUrl;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = `Assistir ao registro ${player.dataset.reelNumber} no Instagram`;
+  quote.append(link);
+  player.append(quote);
+  const observer = new MutationObserver(() => {
+    if (player.querySelector('iframe')) {
+      player.classList.add('is-ready');
+      observer.disconnect();
     }
   });
-  return card;
+  observer.observe(player, { childList: true, subtree: true });
+  try {
+    await ensureInstagramEmbed();
+    if (player.isConnected) window.instgrm.Embeds.process();
+  } catch {
+    observer.disconnect();
+    showPlayerFallback(player);
+    return;
+  }
+  window.setTimeout(() => {
+    observer.disconnect();
+    showPlayerFallback(player);
+  }, 12000);
+}
+
+let playerObserver;
+function preparePlayers() {
+  playerObserver?.disconnect();
+  const players = document.querySelectorAll('.reel-player[data-reel-url]');
+  if (!('IntersectionObserver' in window)) {
+    players.forEach(mountPlayer);
+    return;
+  }
+  playerObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        playerObserver.unobserve(entry.target);
+        mountPlayer(entry.target);
+      }
+    });
+  }, { rootMargin: '700px 0px' });
+  players.forEach(player => playerObserver.observe(player));
 }
 
 function renderArchive(filter = 'all') {
@@ -97,6 +127,7 @@ function renderArchive(filter = 'all') {
     fragment.append(section);
   });
   container.replaceChildren(fragment);
+  preparePlayers();
 }
 
 document.querySelectorAll('.filter').forEach(button => {
