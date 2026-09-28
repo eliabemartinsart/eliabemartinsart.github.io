@@ -14,3 +14,26 @@
 .reel-player.is-ready .player-loading{display:none}
 .reel-player blockquote.instagram-media{position:relative;z-index:1;flex:0 1 540px}
 .reel-player iframe{width:100%!important;min-width:0!important}
+
+/* Local poster images remain visible even when Instagram blocks its embed. */
+.reel-card:not(.featured-reel){display:flex;flex-direction:column}
+.reel-card:not(.featured-reel) .reel-info{flex:1}
+.reel-media{background:#101714;position:relative;min-width:0}
+.reel-media.portrait .reel-cover{aspect-ratio:4/5}
+.reel-media.landscape .reel-cover{aspect-ratio:16/9}
+.reel-cover{display:block;padding:0;background:#101714;isolation:isolate}
+.reel-cover[hidden],.reel-player[hidden]{display:none!important}
+.reel-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:transform .45s ease}
+.reel-cover:hover img{transform:scale(1.035)}
+.reel-cover::before{inset:0;border:0;background:linear-gradient(180deg,rgba(4,10,8,.7),transparent 28%,transparent 60%,rgba(4,10,8,.72));z-index:1}
+.reel-cover::after{display:none}
+.cover-id,.cover-hint{z-index:2;color:#f1f7ee;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.cover-id{top:1.25rem;left:1.25rem}
+.cover-hint{bottom:1.25rem;right:1.25rem}
+.play-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;background:rgba(14,23,19,.65);backdrop-filter:blur(6px);color:#e5ff9d;box-shadow:0 6px 30px rgba(0,0,0,.36)}
+.reel-cover:hover .play-icon{transform:translate(-50%,-50%) scale(1.08)}
+.reel-card.featured-reel .reel-media{min-height:520px}
+.reel-card.featured-reel .reel-cover{height:100%;min-height:520px;aspect-ratio:auto}
+.reel-player{min-height:350px}
+.return-cover{display:inline-block;margin-top:1.2rem;padding:.55rem .7rem;color:#d0ef72;background:none;border:1px solid #d0ef72;cursor:pointer;font:inherit}
+@media(max-width:620px){.reel-card.featured-reel .reel-media{min-height:0}.reel-card.featured-reel .reel-media.portrait .reel-cover{min-height:0;height:auto;aspect-ratio:4/5}.reel-card.featured-reel .reel-media.landscape .reel-cover{min-height:0;height:auto;aspect-ratio:16/9}}

@@ -12,7 +12,7 @@ const archive = [
     { id: 'C2DWxezPZ37', day: '13', number: '05' }
   ]},
   { period: 'JULHO', year: 2023, items: [
-    { id: 'CvJDT91IVTR', day: '25', number: '04' },
+    { id: 'CvJDT91IVTR', day: '25', number: '04', orientation: 'landscape' },
     { id: 'CuzwsFwqyze', day: '17', number: '03' },
     { id: 'Cuw3xwQoP_a', day: '16', number: '02' },
     { id: 'CuuHuv5odG6', day: '15', number: '01' }
@@ -39,21 +39,40 @@ function makeCard(item, group, featured) {
   const card = document.createElement('article');
   card.className = `reel-card${featured ? ' featured-reel' : ''}`;
   card.innerHTML = `
-    <div class="reel-player" data-reel-url="${url}" data-reel-number="${item.number}" aria-label="Vídeo ${item.number} do CIM, ${group.period.toLowerCase()} de ${group.year}">
-      <span class="player-loading">Carregando vídeo do Instagram…</span>
+    <div class="reel-media ${item.orientation || 'portrait'}">
+      <button type="button" class="reel-cover" aria-label="Reproduzir registro ${item.number} do CIM, ${group.period.toLowerCase()} de ${group.year}">
+        <img src="./covers/${item.id}.jpg" alt="Capa original do vídeo ${item.number} do CIM" loading="lazy" decoding="async">
+        <span class="cover-id">CIM / ${group.year}</span>
+        <span class="play-icon" aria-hidden="true">▶</span>
+        <span class="cover-hint">REPRODUZIR VÍDEO ↗</span>
+      </button>
+      <div class="reel-player" hidden data-reel-url="${url}" data-reel-number="${item.number}" aria-label="Vídeo ${item.number} do CIM, ${group.period.toLowerCase()} de ${group.year}">
+        <span class="player-loading">Carregando vídeo do Instagram…</span>
+      </div>
     </div>
     <div class="reel-info">
       <div><div class="reel-info-top"><span>REGISTRO ${item.number}</span><span>${group.period} ${group.year}</span></div>
         <h3>Cobertura do CIM</h3><p>Captação, edição e publicação de conteúdo para o Curso de Imersão Missionária.</p></div>
       <a href="${url}" target="_blank" rel="noopener noreferrer" aria-label="Abrir registro ${item.number} na publicação original do Instagram">Abrir publicação original <span aria-hidden="true">↗</span></a>
     </div>`;
+  card.querySelector('.reel-cover').addEventListener('click', () => {
+    const cover = card.querySelector('.reel-cover');
+    const player = card.querySelector('.reel-player');
+    cover.hidden = true;
+    player.hidden = false;
+    mountPlayer(player);
+  });
   return card;
 }
 
 function showPlayerFallback(player) {
   if (!player.isConnected || player.querySelector('iframe')) return;
   const url = player.dataset.reelUrl;
-  player.innerHTML = `<p class="player-message">O Instagram não liberou a prévia deste vídeo aqui. <a href="${url}" target="_blank" rel="noopener noreferrer">Assistir na publicação original ↗</a></p>`;
+  player.innerHTML = `<p class="player-message">O Instagram não liberou a reprodução aqui. <a href="${url}" target="_blank" rel="noopener noreferrer">Assistir na publicação original ↗</a><br><button type="button" class="return-cover">Voltar à capa</button></p>`;
+  player.querySelector('.return-cover').addEventListener('click', () => {
+    player.hidden = true;
+    player.parentElement.querySelector('.reel-cover').hidden = false;
+  });
 }
 
 async function mountPlayer(player) {
@@ -91,25 +110,6 @@ async function mountPlayer(player) {
   }, 12000);
 }
 
-let playerObserver;
-function preparePlayers() {
-  playerObserver?.disconnect();
-  const players = document.querySelectorAll('.reel-player[data-reel-url]');
-  if (!('IntersectionObserver' in window)) {
-    players.forEach(mountPlayer);
-    return;
-  }
-  playerObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        playerObserver.unobserve(entry.target);
-        mountPlayer(entry.target);
-      }
-    });
-  }, { rootMargin: '700px 0px' });
-  players.forEach(player => playerObserver.observe(player));
-}
-
 function renderArchive(filter = 'all') {
   const container = document.getElementById('video-archive');
   const fragment = document.createDocumentFragment();
@@ -127,7 +127,6 @@ function renderArchive(filter = 'all') {
     fragment.append(section);
   });
   container.replaceChildren(fragment);
-  preparePlayers();
 }
 
 document.querySelectorAll('.filter').forEach(button => {
