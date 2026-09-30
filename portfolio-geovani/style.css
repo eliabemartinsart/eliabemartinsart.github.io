@@ -79,3 +79,23 @@
 @media(min-width:901px){.practice-card:nth-child(2){border-right:1px solid rgba(19,33,29,.22)}.practice-card:nth-child(-n+2){border-bottom:0}}
 @media(max-width:900px){.practice-grid{grid-template-columns:1fr}.practice-card,.practice-card:first-child,.practice-card:nth-child(3){padding:1.6rem 0 1.9rem;border-right:0;border-bottom:1px solid rgba(19,33,29,.22);min-height:0}.practice-card:last-child{border-bottom:0}.practice-phase{margin:1.2rem 0 0}.practice-card h3{margin:.8rem 0}.production-summary{grid-template-columns:1fr;gap:1.4rem}.management-heading{grid-template-columns:1fr;gap:1.5rem}.management-grid{grid-template-columns:1fr 1fr}.management-history h3{margin:2rem 0 1rem}}
 @media(max-width:620px){.case-label{flex-wrap:wrap;font-size:.7rem}.practice-heading{gap:1.7rem}.management{padding-top:4rem;padding-bottom:5rem}.management-grid{grid-template-columns:1fr}.management-history,.management-skills{padding:1.5rem}.management-history h3{margin:1.8rem 0 1rem}.proposal-role{grid-template-columns:1fr;gap:.8rem}.proposal-role p{font-size:1.08rem}.history-path span{font-size:.64rem}}
+
+/* Trabalhos audiovisuais publicados pela Prefeitura de Tarrafas. */
+.municipal{background:#e1e9de;color:var(--dark-text);padding-top:5.8rem;padding-bottom:6.7rem}
+.municipal .section-intro{border-color:rgba(19,33,29,.22)}
+.municipal .index{color:#486b36}
+.municipal .section-intro p{color:#53645b}
+.municipal-heading{display:flex;align-items:end;justify-content:space-between;gap:2rem;margin-bottom:3rem}
+.municipal-heading h2{font-size:clamp(3.1rem,5.6vw,6.6rem);letter-spacing:-.07em;margin:0}
+.municipal-heading h2 em{color:#668143}
+.municipal-heading p{font-size:1.05rem;line-height:1.7;max-width:710px;color:#475a4e;margin:1.2rem 0 0}
+.municipal-count{font:800 clamp(3rem,6vw,5rem)/.85 var(--font);letter-spacing:-.08em;color:#405c35;white-space:nowrap;text-align:right}
+.municipal-count small{display:block;font:800 .7rem var(--ui);letter-spacing:.1em;color:#53645b;margin-top:.5rem}
+.municipal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.4rem}
+.municipal-card{display:flex;flex-direction:column;background:#20302d;color:var(--white)}
+.municipal-card .reel-media.portrait .reel-cover{aspect-ratio:9/16}
+.municipal-card .reel-info{flex:1}
+.municipal-card .reel-info h3{line-height:1.18}
+.municipal-note{font-size:.79rem;line-height:1.65;color:#53645b;max-width:800px;margin:2.5rem 0 0;border-top:1px solid rgba(19,33,29,.22);padding-top:1rem}
+@media(max-width:900px){.municipal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.municipal{padding-top:4rem;padding-bottom:5rem}.municipal-heading{align-items:flex-start}.municipal-count{font-size:2.6rem}.municipal-count small{font-size:.55rem}.municipal-grid{grid-template-columns:1fr}.municipal-card .reel-info{padding:1.4rem}}

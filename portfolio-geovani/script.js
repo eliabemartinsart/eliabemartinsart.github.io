@@ -19,6 +19,12 @@ const archive = [
   ]}
 ];
 
+const municipalWorks = [
+  { id: 'DdoF8SJBwmx', day: '23', month: 'SET', year: 2026, number: '03', title: 'Cursos de qualificação', role: 'Edição', description: 'Registro das turmas de salgados e pizzas nas atividades de qualificação profissional.' },
+  { id: 'DbBH5IiBRmv', day: '20', month: 'JUL', year: 2026, number: '02', title: 'Doação de sangue em Tarrafas', role: 'Filmagem e edição', description: 'Cobertura da mobilização de doadores durante a ação do Hemoce no município.' },
+  { id: 'DY3JCoUN2Gu', day: '27', month: 'MAI', year: 2026, number: '01', title: 'Dia do Desafio', role: 'Edição', description: 'Vídeo da programação de atividades físicas realizada no município.' }
+];
+
 let embedScriptPromise;
 function ensureInstagramEmbed() {
   if (window.instgrm?.Embeds?.process) return Promise.resolve();
@@ -140,3 +146,40 @@ document.querySelectorAll('.filter').forEach(button => {
   });
 });
 renderArchive();
+
+function makeMunicipalCard(item) {
+  const url = `https://www.instagram.com/reel/${item.id}/`;
+  const card = document.createElement('article');
+  card.className = 'reel-card municipal-card';
+  card.innerHTML = `
+    <div class="reel-media portrait">
+      <button type="button" class="reel-cover" aria-label="Reproduzir ${item.title}, publicado em ${item.day} de ${item.month.toLowerCase()} de ${item.year}">
+        <img src="./covers/${item.id}.jpg" alt="Capa do vídeo ${item.title} publicado pela Prefeitura de Tarrafas" loading="lazy" decoding="async">
+        <span class="cover-id">TARRAFAS / ${item.year}</span>
+        <span class="play-icon" aria-hidden="true">▶</span>
+        <span class="cover-hint">REPRODUZIR VÍDEO</span>
+      </button>
+      <div class="reel-player" hidden data-reel-url="${url}" data-reel-number="${item.number}" aria-label="Vídeo ${item.title} no Instagram">
+        <span class="player-loading">Carregando vídeo do Instagram…</span>
+      </div>
+    </div>
+    <div class="reel-info">
+      <div>
+        <div class="reel-info-top"><span>${item.role.toUpperCase()}</span><span>${item.day} ${item.month} ${item.year}</span></div>
+        <h3>${item.title}</h3>
+        <p>${item.description}</p>
+      </div>
+      <a href="${url}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${item.title} na publicação original do Instagram">Abrir publicação original <span aria-hidden="true">↗</span></a>
+    </div>`;
+  card.querySelector('.reel-cover').addEventListener('click', () => {
+    const cover = card.querySelector('.reel-cover');
+    const player = card.querySelector('.reel-player');
+    cover.hidden = true;
+    player.hidden = false;
+    mountPlayer(player);
+  });
+  return card;
+}
+
+const municipalArchive = document.getElementById('municipal-archive');
+if (municipalArchive) municipalWorks.forEach(item => municipalArchive.append(makeMunicipalCard(item)));
