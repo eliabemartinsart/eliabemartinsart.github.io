@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self';style-src 'self';img-src 'self' data:;connect-src https://qgrzyxwbrufhtkrealep.supabase.co;object-src 'none';base-uri 'none';form-action 'none';upgrade-insecure-requests">
+  <title>Acessos · Eliabe</title>
+  <link rel="icon" href="../assets/logos/eliabe.png">
+  <link rel="stylesheet" href="./admin.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header><a href="../" aria-label="Voltar ao portfólio"><img src="../assets/logos/eliabe.png" width="64" height="64" alt="Eliabe"></a><span>ÁREA PRIVADA</span></header>
+  <main>
+    <section id="auth-view" class="auth-layout">
+      <div class="intro"><p class="eyebrow">SEU PORTFÓLIO, DE PERTO</p><h1>Quem passou<br>por aqui.</h1><p>Os acessos ao seu site em um só lugar.<br>Somente horário e endereço IP.</p><span class="tag">Acesso exclusivo do administrador</span></div>
+      <div class="card auth-card">
+        <form id="login-form"><h2>Entrar no painel</h2><p class="muted">Use seu acesso administrativo.</p><fieldset id="login-fields" disabled><label for="email">E-mail de acesso</label><input id="email" type="email" autocomplete="username" required maxlength="254"><label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required maxlength="256"><button class="primary" type="submit">Entrar</button></fieldset></form>
+        <form id="mfa-form" hidden><h2>Confirme seu acesso</h2><p id="mfa-instructions" class="muted">Digite o código do seu aplicativo autenticador.</p><img id="mfa-qr" width="200" height="200" alt="QR code para configurar o autenticador" hidden><label for="mfa-code">Código de verificação</label><input id="mfa-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" minlength="6" required><button class="primary" type="submit">Verificar e entrar</button><button id="mfa-cancel" class="secondary" type="button">Cancelar</button></form>
+        <p id="auth-status" role="status" aria-live="polite">O acesso administrativo ainda não foi ativado.</p>
+      </div>
+    </section>
+    <section id="dashboard" hidden>
+      <div class="dashboard-heading"><div><p class="eyebrow">SEU PORTFÓLIO</p><h1>Acessos ao site</h1></div><button id="logout" class="secondary">Sair</button></div>
+      <div class="toolbar"><label for="period">Período <select id="period"><option value="1">Últimas 24 horas</option><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option></select></label><button id="refresh" class="secondary">Atualizar</button></div>
+      <div class="metrics"><article class="card"><span>Acessos registrados</span><strong id="total">—</strong></article><article class="card"><span>IPs distintos</span><strong id="unique">—</strong></article><article class="card"><span>Último acesso</span><strong id="latest" class="date">—</strong></article></div>
+      <div class="card table-card"><div class="table-heading"><h2>Registro de visitas</h2><span>Horário de Brasília</span></div><div class="table-scroll"><table><thead><tr><th scope="col">Data e horário</th><th scope="col">Endereço IP</th></tr></thead><tbody id="visits"></tbody></table></div><p id="empty" class="muted" hidden>Nenhum acesso registrado neste período.</p><div class="pagination"><button id="previous" class="secondary" disabled>Mais recentes</button><button id="next" class="secondary" disabled>Mais antigos</button></div></div>
+      <p id="data-status" role="status" aria-live="polite"></p>
+      <p class="footnote">Uma visita é um acesso registrado. Um mesmo IP pode ser compartilhado por várias pessoas. Registros mantidos por até 30 dias.</p>
+    </section>
+  </main>
+</body>
+</html>

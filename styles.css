@@ -2597,3 +2597,5 @@ img {
   }
   .reveal { opacity: 1; transform: none; }
 }
+
+.privacy-note { display: block; max-width: 32rem; margin-top: 10px; font-size: .875rem; line-height: 1.6; color: var(--muted); }

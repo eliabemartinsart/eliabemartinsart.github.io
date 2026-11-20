@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild admin.js --bundle --format=esm --minify --outfile=../../admin/app.js",
+    "test": "node test-security.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.119.2"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "@electric-sql/pglite": "0.5.17"
+  }
+}
