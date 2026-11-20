@@ -2,52 +2,24 @@ import { createClient } from '@supabase/supabase-js';
 import config from '../public-config.js';
 if (window.self !== window.top) { document.body.replaceChildren(document.createTextNode('Abra o painel diretamente no navegador.')); throw new Error('Framed access is disabled'); }
 const $ = (id) => document.getElementById(id);
-let client, factorId, cursor = null, nextCursor = null, history = [], loading = false, generation = 0;
+let client, cursor = null, nextCursor = null, history = [], loading = false, generation = 0;
 const format = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'medium', timeZone: 'America/Fortaleza' });
 const status = (message) => { $('auth-status').textContent = message; };
 const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(config.url) && config.publishableKey.length > 20;
-const cleanView = () => { $('dashboard').hidden = true; $('auth-view').hidden = false; $('mfa-form').hidden = true; $('login-form').hidden = false; $('visits').replaceChildren(); $('password').value = ''; $('mfa-code').value = ''; $('mfa-qr').hidden = true; $('mfa-qr').removeAttribute('src'); factorId = null; cursor = null; history = []; };
+const cleanView = () => { $('dashboard').hidden = true; $('auth-view').hidden = false; $('login-form').hidden = false; $('visits').replaceChildren(); $('password').value = ''; cursor = null; history = []; };
 async function leave() { generation++; cleanView(); for (const id of ['total','unique','latest']) $(id).textContent = '—'; try { if (client) await client.auth.signOut({ scope: 'local' }); } finally { status('Você saiu do painel.'); } }
-async function secondFactor() {
-  const { data, error } = await client.auth.mfa.listFactors();
-  if (error) throw error;
-  const verified = data.totp.find(f => f.status === 'verified');
-  if (verified) {
-    factorId = verified.id;
-    $('mfa-instructions').textContent = 'Digite o código do seu aplicativo autenticador.';
-  } else {
-    for (const f of data.totp.filter(f => f.status === 'unverified')) await client.auth.mfa.unenroll({ factorId: f.id });
-    const { data: enrollment, error: enrollError } = await client.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Painel Eliabe' });
-    if (enrollError) throw enrollError;
-    factorId = enrollment.id;
-    $('mfa-qr').src = enrollment.totp.qr_code.startsWith('data:') ? enrollment.totp.qr_code : `data:image/svg+xml;charset=utf-8,${encodeURIComponent(enrollment.totp.qr_code)}`;
-    $('mfa-qr').hidden = false;
-    $('mfa-instructions').textContent = 'Adicione este QR code ao seu autenticador e digite o código para ativar a segunda verificação.';
-  }
-  $('login-form').hidden = true; $('mfa-form').hidden = false; status(''); $('mfa-code').focus();
-}
 $('login-form').addEventListener('submit', async (event) => {
   event.preventDefault(); if (!client || loading) return;
   loading = true; $('login-fields').disabled = true; status('Verificando acesso…');
   try {
     const { error } = await client.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
     if (error) throw error;
-    await secondFactor();
+    await loadVisits();
+    $('auth-view').hidden = true; $('dashboard').hidden = false;
   } catch (error) {
     await client.auth.signOut({ scope: 'local' }); cleanView();
     status(error?.status === 429 ? 'Muitas tentativas. Aguarde antes de tentar novamente.' : 'Não foi possível entrar. Confira os dados ou tente novamente mais tarde.');
   } finally { $('password').value = ''; loading = false; $('login-fields').disabled = false; }
-});
-$('mfa-form').addEventListener('submit', async (event) => {
-  event.preventDefault(); if (!factorId || loading) return;
-  loading = true; const button = $('mfa-form').querySelector('[type=submit]'); button.disabled = true; status('Verificando código…');
-  try {
-    const { error } = await client.auth.mfa.challengeAndVerify({ factorId, code: $('mfa-code').value.trim() });
-    if (error) throw error;
-    await loadVisits();
-    $('mfa-qr').removeAttribute('src'); $('auth-view').hidden = true; $('dashboard').hidden = false;
-  } catch { status('Não foi possível autorizar o acesso. Confira o código ou tente novamente mais tarde.'); }
-  finally { $('mfa-code').value = ''; loading = false; button.disabled = false; }
 });
 async function loadVisits() {
   const requestGeneration = generation;
@@ -70,7 +42,7 @@ $('period').addEventListener('change', () => { cursor = null; history = []; refr
 $('refresh').addEventListener('click', refresh);
 $('next').addEventListener('click', () => { if (loading || nextCursor === null) return; history.push(cursor); cursor = nextCursor; refresh(); });
 $('previous').addEventListener('click', () => { if (loading || !history.length) return; cursor = history.pop(); refresh(); });
-$('logout').addEventListener('click', leave); $('mfa-cancel').addEventListener('click', leave);
+$('logout').addEventListener('click', leave);
 if (configured) {
   client = createClient(config.url, config.publishableKey, { auth: { persistSession: false, autoRefreshToken: true, detectSessionInUrl: false } });
   $('login-fields').disabled = false; status('');

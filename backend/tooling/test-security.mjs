@@ -11,7 +11,8 @@ create function auth.uid() returns uuid language sql stable as $$ select (coales
 create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb $$;
 insert into auth.users values ('${admin}'),('${other}');`);
 await db.exec(await readFile('../supabase/migrations/20261120181601_admin_visit_privacy.sql','utf8'));
-await db.exec(`insert into portfolio_private.site_admins values ('${admin}');insert into auth.sessions values ('00000000-0000-4000-8000-000000000003','${admin}','aal2',null)`);
+await db.exec(await readFile('../supabase/migrations/20261120185437_admin_password_access.sql','utf8'));
+await db.exec(`insert into portfolio_private.site_admins values ('${admin}');insert into auth.sessions values ('00000000-0000-4000-8000-000000000003','${admin}','aal1',null)`);
 async function role(name,sub=null,aal='aal1') { await db.exec('reset role'); await db.exec(`set role ${name}`); await db.query(`select set_config('request.jwt.claims',$1,false)`,[JSON.stringify(sub?{sub,aal,session_id:'00000000-0000-4000-8000-000000000003'}:{})]); }
 async function denied(sql,params=[]) { await assert.rejects(db.query(sql,params),e=>e.code==='42501'); }
 await role('anon');
@@ -20,7 +21,7 @@ await denied('select public.admin_visit_report()');
 await denied("select public.record_site_visit('198.51.100.1')");
 await role('authenticated',admin,'aal1');
 await denied('select * from portfolio_private.site_visits');
-await denied('select public.admin_visit_report()');
+assert.equal((await db.query('select public.admin_visit_report() as report')).rows[0].report.total,0);
 await denied("select public.record_site_visit('198.51.100.1')");
 await role('authenticated',other,'aal2');
 await denied('select public.admin_visit_report()');
@@ -28,7 +29,7 @@ await role('service_role');
 for (let i=0;i<20;i++) assert.equal((await db.query("select public.record_site_visit('198.51.100.1') as ok")).rows[0].ok,true);
 assert.equal((await db.query("select public.record_site_visit('198.51.100.1') as ok")).rows[0].ok,false);
 for(let i=2;i<=56;i++) await db.query('select public.record_site_visit($1::inet)',[`198.51.100.${i}`]);
-await role('authenticated',admin,'aal2');
+await role('authenticated',admin,'aal1');
 const data=(await db.query('select public.admin_visit_report() as report')).rows[0].report;
 assert.equal(data.total,75);assert.equal(data.unique_ips,56);assert.equal(data.visits.length,50);
 assert.ok(data.visits.every(v=>Object.keys(v).sort().join(',')==='at,id,ip'));
@@ -43,6 +44,10 @@ await db.exec("insert into portfolio_private.site_visits(ip,occurred_at) values(
 await role('service_role');await db.query('select public.purge_site_visits()');
 await db.exec('reset role');
 assert.equal(Number((await db.query('select count(*) as n from portfolio_private.site_visits')).rows[0].n),75);
-await db.exec('delete from auth.sessions');await role('authenticated',admin,'aal2');await denied('select public.admin_visit_report()');
+await db.exec("update auth.sessions set not_after=now()-interval '1 minute'");
+await role('authenticated',admin,'aal1');await denied('select public.admin_visit_report()');
+await db.exec('reset role'); await db.exec('update auth.sessions set not_after=null');
+await role('authenticated',admin,'');await denied('select public.admin_visit_report()');
+await db.exec('reset role'); await db.exec('delete from auth.sessions');await role('authenticated',admin,'aal1');await denied('select public.admin_visit_report()');
 await db.close();
-console.log('Passed: anonymous denial, non-admin denial, MFA enforcement, no direct table access, no privilege escalation, write rate limit, exact report fields, pagination and retention.');
+console.log('Passed: anonymous denial, non-admin denial, password-only owner access and expired/revoked session denial, no direct table access, no privilege escalation, write rate limit, exact report fields, pagination and retention.');

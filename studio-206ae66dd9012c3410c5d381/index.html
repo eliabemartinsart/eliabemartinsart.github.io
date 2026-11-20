@@ -9,7 +9,7 @@
   <title>Acessos · Eliabe</title>
   <link rel="icon" href="../assets/logos/eliabe.png">
   <link rel="stylesheet" href="./admin.css">
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=20261120-password"></script>
 </head>
 <body>
   <header><a href="../" aria-label="Voltar ao portfólio"><img src="../assets/logos/eliabe.png" width="64" height="64" alt="Eliabe"></a><span>ÁREA PRIVADA</span></header>
@@ -18,7 +18,6 @@
       <div class="intro"><p class="eyebrow">SEU PORTFÓLIO, DE PERTO</p><h1>Quem passou<br>por aqui.</h1><p>Os acessos ao seu site em um só lugar.<br>Somente horário e endereço IP.</p><span class="tag">Acesso exclusivo do administrador</span></div>
       <div class="card auth-card">
         <form id="login-form"><h2>Entrar no painel</h2><p class="muted">Use seu acesso administrativo.</p><fieldset id="login-fields" disabled><label for="email">E-mail de acesso</label><input id="email" type="email" autocomplete="username" required maxlength="254"><label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required maxlength="256"><button class="primary" type="submit">Entrar</button></fieldset></form>
-        <form id="mfa-form" hidden><h2>Confirme seu acesso</h2><p id="mfa-instructions" class="muted">Digite o código do seu aplicativo autenticador.</p><img id="mfa-qr" width="200" height="200" alt="QR code para configurar o autenticador" hidden><label for="mfa-code">Código de verificação</label><input id="mfa-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" minlength="6" required><button class="primary" type="submit">Verificar e entrar</button><button id="mfa-cancel" class="secondary" type="button">Cancelar</button></form>
         <p id="auth-status" role="status" aria-live="polite">O acesso administrativo ainda não foi ativado.</p>
       </div>
     </section>
