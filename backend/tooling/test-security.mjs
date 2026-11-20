@@ -12,11 +12,15 @@ create function auth.jwt() returns jsonb language sql stable as $$ select coales
 insert into auth.users values ('${admin}'),('${other}');`);
 await db.exec(await readFile('../supabase/migrations/20261120181601_admin_visit_privacy.sql','utf8'));
 await db.exec(await readFile('../supabase/migrations/20261120185437_admin_password_access.sql','utf8'));
+await db.exec(await readFile('../supabase/migrations/20261120190711_admin_ip_geolocation.sql','utf8'));
 await db.exec(`insert into portfolio_private.site_admins values ('${admin}');insert into auth.sessions values ('00000000-0000-4000-8000-000000000003','${admin}','aal1',null)`);
 async function role(name,sub=null,aal='aal1') { await db.exec('reset role'); await db.exec(`set role ${name}`); await db.query(`select set_config('request.jwt.claims',$1,false)`,[JSON.stringify(sub?{sub,aal,session_id:'00000000-0000-4000-8000-000000000003'}:{})]); }
 async function denied(sql,params=[]) { await assert.rejects(db.query(sql,params),e=>e.code==='42501'); }
 await role('anon');
 await denied('select * from portfolio_private.site_visits');
+await denied('select * from portfolio_private.site_ip_locations');
+await denied("select public.claim_ip_location('198.51.100.1')");
+await denied("select public.finish_ip_location('198.51.100.1')");
 await denied('select public.admin_visit_report()');
 await denied("select public.record_site_visit('198.51.100.1')");
 await role('authenticated',admin,'aal1');
@@ -32,7 +36,7 @@ for(let i=2;i<=56;i++) await db.query('select public.record_site_visit($1::inet)
 await role('authenticated',admin,'aal1');
 const data=(await db.query('select public.admin_visit_report() as report')).rows[0].report;
 assert.equal(data.total,75);assert.equal(data.unique_ips,56);assert.equal(data.visits.length,50);
-assert.ok(data.visits.every(v=>Object.keys(v).sort().join(',')==='at,id,ip'));
+assert.ok(data.visits.every(v=>Object.keys(v).sort().join(',')==='at,city,country,id,ip,region'));
 const next=(await db.query('select public.admin_visit_report(30,$1) as report',[data.next_cursor])).rows[0].report;
 assert.equal(next.visits.length,25);assert.equal(next.next_cursor,null);
 assert.ok(next.visits.every(v=>!data.visits.some(previous=>previous.id===v.id)));
@@ -40,10 +44,26 @@ await assert.rejects(db.query('select public.admin_visit_report(365)'),e=>e.code
 await denied('delete from portfolio_private.site_visits');
 await denied('insert into portfolio_private.site_admins values ($1)',[other]);
 await db.exec('reset role');
+await role('service_role');
+assert.equal((await db.query("select public.claim_ip_location('203.0.113.200') as ok")).rows[0].ok,false);
+assert.equal((await db.query("select public.claim_ip_location('198.51.100.1') as ok")).rows[0].ok,true);
+assert.equal((await db.query("select public.claim_ip_location('198.51.100.1') as ok")).rows[0].ok,false);
+await db.query("select public.finish_ip_location('198.51.100.1','Tarrafas','Ceará','Brasil','BR')");
+assert.equal((await db.query("select public.claim_ip_location('198.51.100.1') as ok")).rows[0].ok,false);
+await role('authenticated',admin,'aal1');
+const located=(await db.query('select public.admin_visit_report(30,26) as report')).rows[0].report;
+assert.ok(located.visits.filter(v=>v.ip==='198.51.100.1').every(v=>v.city==='Tarrafas'&&v.region==='Ceará'&&v.country==='Brasil'));
+await db.exec('reset role');
+await db.exec("update portfolio_private.geo_daily_usage set hits=500");
+await role('service_role');
+assert.equal((await db.query("select public.claim_ip_location('198.51.100.2') as ok")).rows[0].ok,false);
+await db.exec('reset role');
+await db.exec("insert into portfolio_private.site_ip_locations(ip,retry_after) values ('203.0.113.201',now())");
 await db.exec("insert into portfolio_private.site_visits(ip,occurred_at) values('203.0.113.1',now()-interval '31 days')");
 await role('service_role');await db.query('select public.purge_site_visits()');
 await db.exec('reset role');
 assert.equal(Number((await db.query('select count(*) as n from portfolio_private.site_visits')).rows[0].n),75);
+assert.equal(Number((await db.query("select count(*) as n from portfolio_private.site_ip_locations where ip='203.0.113.201'")).rows[0].n),0);
 await db.exec("update auth.sessions set not_after=now()-interval '1 minute'");
 await role('authenticated',admin,'aal1');await denied('select public.admin_visit_report()');
 await db.exec('reset role'); await db.exec('update auth.sessions set not_after=null');

@@ -24,14 +24,16 @@ $('login-form').addEventListener('submit', async (event) => {
 async function loadVisits() {
   const requestGeneration = generation;
   $('data-status').textContent = 'Carregando registros…';
-  const { data, error } = await client.rpc('admin_visit_report', { p_days: Number($('period').value), p_before_id: cursor });
+  const { data, error } = await client.functions.invoke('visit-report', { body: { p_days: Number($('period').value), p_before_id: cursor } });
   if (requestGeneration !== generation) throw new Error('Session changed');
   if (error) { $('visits').replaceChildren(); $('data-status').textContent = 'Acesso não autorizado ou sessão expirada.'; throw error; }
   $('total').textContent = String(data.total); $('unique').textContent = String(data.unique_ips); $('latest').textContent = data.latest ? format.format(new Date(data.latest)) : 'Sem registros';
   const fragment = document.createDocumentFragment();
   for (const visit of data.visits) {
     const row = document.createElement('tr'); const date = document.createElement('td'); const ip = document.createElement('td');
-    date.textContent = format.format(new Date(visit.at)); ip.textContent = visit.ip; row.append(date, ip); fragment.append(row);
+    date.textContent = format.format(new Date(visit.at)); ip.textContent = visit.ip; row.append(date, ip);
+    for (const field of ['city','region','country']) { const cell = document.createElement('td'); cell.textContent = visit[field] || 'Não disponível'; row.append(cell); }
+    fragment.append(row);
   }
   $('visits').replaceChildren(fragment); $('empty').hidden = data.visits.length !== 0;
   nextCursor = data.next_cursor; $('previous').disabled = history.length === 0; $('next').disabled = nextCursor === null;

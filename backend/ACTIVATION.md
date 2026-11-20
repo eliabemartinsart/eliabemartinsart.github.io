@@ -16,7 +16,7 @@ O coletor aceita POST da origem do portfólio com a chave pública do projeto. E
 
 O IP vem de CF-Connecting-IP na borda gerenciada. Corpo e X-Forwarded-For arbitrário são ignorados. Testes funcionais confirmaram que IPs TEST-NET falsificados não foram gravados. A tentativa de alterar CF-Connecting-IP recebeu 403 do gateway. Registros temporários dos testes foram removidos antes da ativação. A implantação não inclui diagnóstico público devolvendo cabeçalhos nem IPs reais.
 
-O job portfolio-visit-retention limpa registros diariamente às 06:00 UTC (03:00 em Fortaleza). A primeira visita de cada minuto também limpa registros expirados. Consultas abrangem até 30 dias. A coleta dispensa cookies adicionais e fingerprinting, respeita Global Privacy Control e registra somente IP e horário. IP não identifica uma pessoa: NATs, proxies e VPNs podem compartilhá-lo.
+O job portfolio-visit-retention limpa registros diariamente às 06:00 UTC (03:00 em Fortaleza). A primeira visita de cada minuto também limpa registros expirados. Consultas abrangem até 30 dias. A coleta dispensa cookies adicionais e fingerprinting, respeita Global Privacy Control e registra IP, horário e localização aproximada. IP não identifica uma pessoa: NATs, proxies e VPNs podem compartilhá-lo.
 
 ## Compilação e verificação
 
@@ -29,3 +29,11 @@ Tokens do painel ficam somente em memória. CSP permite scripts locais e conexã
 Nenhum sistema pode ser declarado sem vulnerabilidades. A validação final depende do primeiro acesso real do proprietário. Mantenha dependências, contas e segredos atualizados; limites e disponibilidade seguem o plano gratuito do provedor.
 
 O caminho do painel usa um identificador aleatório e não tem link na navegação pública. /admin/ foi removido sem redirecionamento. O repositório é público: o endereço pode ser descoberto pelo código, portanto não constitui segredo nem substitui autenticação e autorização.
+
+## Estimativa de localização
+
+O painel usa visit-report, que valida o JWT no Auth e exige a consulta autorizada antes de enriquecer IPs. Somente os IPs dessa página de registros são enviados por HTTPS ao endpoint gratuito ipwho.is (IPWHOIS.io). A consulta solicita apenas cidade, estado/região e país em pt-BR: não solicita GPS, coordenadas, endereço, nome ou e-mail. Nenhuma lista de IPs fornecida pelo cliente é aceita. Os acessos públicos continuam sendo gravados independentemente da disponibilidade do serviço de localização.
+
+O cache privado reutiliza resultados por 7 dias, tenta falhas novamente após 6 horas e limita novas consultas a 500 por dia UTC, abaixo da franquia publicada de 1.000/dia. Há até 5 consultas simultâneas e timeout de 2,5 segundos por consulta; nenhuma assinatura foi criada. A disponibilidade e a precisão dependem do provedor gratuito. Campos ausentes aparecem como Não disponível.
+
+As tabelas de cache e quota têm RLS, sem acesso direto de clientes; somente funções internas de serviço podem alterá-las. A limpeza diária remove IPs do cache quando já não há visitas válidas em 30 dias. A interface e o rodapé público informam a estimativa e o uso do provedor. Baseado na documentação oficial https://ipwhois.io/documentation e política https://ipwhois.io/privacy .

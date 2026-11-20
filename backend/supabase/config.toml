@@ -15,3 +15,7 @@ verify_enabled = true
 
 [functions.collect-visit]
 verify_jwt = false
+
+# JWT is verified in the handler with getUser and a session-checked RPC.
+[functions.visit-report]
+verify_jwt = false
