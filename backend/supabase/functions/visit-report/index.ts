@@ -1,5 +1,4 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.119.2';
-import { enrichReport } from './geo.ts';
 import { enrichNetworks } from './network.ts';
 const publicKey = 'sb_publishable_KrEo1iWfTSU5aJ5YUzn99w_tFL80WMV';
 const origin = 'https://eliabemartinsart.github.io';
@@ -32,7 +31,8 @@ Deno.serve(async (request: Request) => {
     if (first.error) return response(403);
     // IPs come only from the authorized database report, never from a client-supplied lookup list.
     const server = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false, autoRefreshToken: false } });
-    await Promise.allSettled([enrichReport(server, first.data.visits), enrichNetworks(server, first.data.visits)]);
+    // Location fields come only from the existing private cache. No visitor IP is sent to an external lookup API.
+    await Promise.allSettled([enrichNetworks(server, first.data.visits)]);
     const [final,summary] = await Promise.all([client.rpc('admin_visit_report',params),client.rpc('admin_analytics_summary',{p_days:days})]);
     if (final.error || summary.error) return response(403);
     return response(200, {...final.data,analytics:summary.data});

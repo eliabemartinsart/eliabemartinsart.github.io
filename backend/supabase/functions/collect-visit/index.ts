@@ -11,6 +11,7 @@ Deno.serve(async(request:Request)=>{
  const ip=(request.headers.get('cf-connecting-ip')||'').trim();if(!isIP(ip))return new Response(null,{status:503,headers});
  try{const body=JSON.parse((await readBody(request,256))||'{}');if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>k!=='source')||(body.source!==undefined&&typeof body.source!=='string'))return new Response(null,{status:400,headers});
  const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false,autoRefreshToken:false}}),device=classifyDevice(request.headers.get('user-agent')),token=crypto.randomUUID();
+ if(body.source===undefined){const legacy=await db.rpc('record_site_visit_details',{p_ip:ip,p_device:device.device,p_os:device.os,p_browser:device.browser});return new Response(null,{status:legacy.error?503:204,headers})}
  const{data,error}=await db.rpc('begin_site_visit',{p_ip:ip,p_device:device.device,p_os:device.os,p_browser:device.browser,p_source:body.source||null,p_token:token});
  if(error)return new Response(null,{status:503,headers});return data===true?new Response(JSON.stringify({token}),{status:200,headers}):new Response(null,{status:204,headers});
  }catch{return new Response(null,{status:400,headers})}
