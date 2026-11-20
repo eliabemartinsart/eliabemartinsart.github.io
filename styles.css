@@ -166,29 +166,17 @@ img {
   letter-spacing: -0.04em;
 }
 
-.brand-mark {
-  display: grid;
-  width: 35px;
-  height: 35px;
-  place-items: center;
-  border-radius: 10px;
-  background: var(--yellow);
-  color: var(--ink);
-  font-size: 1.15rem;
-  transform: rotate(-4deg);
-  box-shadow: 3px 3px 0 var(--violet);
+.brand-logo {
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex: none;
 }
 
-.brand-name {
-  font-size: 1.05rem;
-}
-
-.brand-name > span {
-  margin-left: 3px;
-  color: var(--yellow);
-  font-family: "DM Sans", sans-serif;
-  font-size: 0.5rem;
-  vertical-align: top;
+.footer-brand .brand-logo {
+  width: 96px;
+  height: 96px;
 }
 
 .main-nav {
@@ -971,9 +959,9 @@ img {
 
 .about-section::before {
   position: absolute;
-  inset: 7% 0 auto;
+  inset: 7% 0 56px;
   z-index: -1;
-  height: 78%;
+  height: auto;
   border-radius: 40px;
   background:
     linear-gradient(135deg, rgba(117, 102, 255, 0.1), transparent 55%),
@@ -2134,8 +2122,8 @@ img {
   }
 
   .about-section::before {
-    inset: 5% 12px auto;
-    height: 51%;
+    inset: 5% 12px 56px;
+    height: auto;
   }
 
   .about-number {
@@ -2234,8 +2222,9 @@ img {
     font-size: 0.98rem;
   }
 
-  .brand-name {
-    font-size: 0.95rem;
+  .site-header .brand-logo {
+    width: 58px;
+    height: 58px;
   }
 
   .hero {
