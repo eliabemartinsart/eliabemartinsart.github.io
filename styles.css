@@ -2599,3 +2599,5 @@ img {
 }
 
 .privacy-note { display: block; max-width: 32rem; margin-top: 10px; font-size: .875rem; line-height: 1.6; color: var(--muted); }
+
+.hero.has-no-highlights .hero-copy{grid-column:1/-1;max-width:900px}[hidden]{display:none!important}

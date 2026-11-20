@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "build": "esbuild admin.js --bundle --format=esm --minify --outfile=../../studio-206ae66dd9012c3410c5d381/app.js",
-    "test": "node test-security.mjs && node test-geolocation.mjs && node test-visit-signals.mjs"
+    "test": "node test-security.mjs && node test-geolocation.mjs && node test-visit-signals.mjs && node test-full-panel.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.119.2"

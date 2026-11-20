@@ -33,8 +33,8 @@ Deno.serve(async (request: Request) => {
     // IPs come only from the authorized database report, never from a client-supplied lookup list.
     const server = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false, autoRefreshToken: false } });
     await Promise.allSettled([enrichReport(server, first.data.visits), enrichNetworks(server, first.data.visits)]);
-    const final = await client.rpc('admin_visit_report', params);
-    if (final.error) return response(403);
-    return response(200, final.data);
+    const [final,summary] = await Promise.all([client.rpc('admin_visit_report',params),client.rpc('admin_analytics_summary',{p_days:days})]);
+    if (final.error || summary.error) return response(403);
+    return response(200, {...final.data,analytics:summary.data});
   } catch { return response(503); }
 });

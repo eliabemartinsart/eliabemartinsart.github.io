@@ -1,61 +1,30 @@
-import { createClient } from '@supabase/supabase-js';
-import config from '../public-config.js';
-import { networkLabel, deviceLabel } from './visit-labels.js';
-if (window.self !== window.top) { document.body.replaceChildren(document.createTextNode('Abra o painel diretamente no navegador.')); throw new Error('Framed access is disabled'); }
-const $ = (id) => document.getElementById(id);
-let client, cursor = null, nextCursor = null, history = [], loading = false, generation = 0;
-const format = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'medium', timeZone: 'America/Fortaleza' });
-const status = (message) => { $('auth-status').textContent = message; };
-const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(config.url) && config.publishableKey.length > 20;
-const cleanView = () => { $('dashboard').hidden = true; $('auth-view').hidden = false; $('login-form').hidden = false; $('visits').replaceChildren(); $('password').value = ''; cursor = null; history = []; };
-async function leave() { generation++; cleanView(); for (const id of ['total','unique','latest']) $(id).textContent = '—'; try { if (client) await client.auth.signOut({ scope: 'local' }); } finally { status('Você saiu do painel.'); } }
-$('login-form').addEventListener('submit', async (event) => {
-  event.preventDefault(); if (!client || loading) return;
-  loading = true; $('login-fields').disabled = true; status('Verificando acesso…');
-  try {
-    const { error } = await client.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
-    if (error) throw error;
-    await loadVisits();
-    $('auth-view').hidden = true; $('dashboard').hidden = false;
-  } catch (error) {
-    await client.auth.signOut({ scope: 'local' }); cleanView();
-    status(error?.status === 429 ? 'Muitas tentativas. Aguarde antes de tentar novamente.' : 'Não foi possível entrar. Confira os dados ou tente novamente mais tarde.');
-  } finally { $('password').value = ''; loading = false; $('login-fields').disabled = false; }
-});
-async function loadVisits() {
-  const requestGeneration = generation;
-  $('data-status').textContent = 'Carregando registros…';
-  const { data, error } = await client.functions.invoke('visit-report', { body: { p_days: Number($('period').value), p_before_id: cursor } });
-  if (requestGeneration !== generation) throw new Error('Session changed');
-  if (error) { $('visits').replaceChildren(); $('data-status').textContent = 'Acesso não autorizado ou sessão expirada.'; throw error; }
-  $('total').textContent = String(data.total); $('unique').textContent = String(data.unique_ips); $('latest').textContent = data.latest ? format.format(new Date(data.latest)) : 'Sem registros';
-  const fragment = document.createDocumentFragment();
-  for (const visit of data.visits) {
-    const row = document.createElement('tr'); const date = document.createElement('td'); const ip = document.createElement('td');
-    date.textContent = format.format(new Date(visit.at)); ip.textContent = visit.ip; row.append(date, ip);
-    for (const field of ['city','region','country']) { const cell = document.createElement('td'); cell.textContent = visit[field] || 'Não disponível'; row.append(cell); }
-    const network = networkLabel(visit), device = deviceLabel(visit);
-    const networkCell = document.createElement('td'), badge = document.createElement('span');
-    badge.className = network.suspected ? 'network-badge suspected' : 'network-badge'; badge.textContent = network.label;
-    badge.title = 'Comparação com listas públicas. Ausência de indícios não garante ausência de VPN ou proxy.';
-    networkCell.append(badge);
-    if (visit.network_checked_at) { const checked = document.createElement('small'); checked.textContent = `Verificado em ${format.format(new Date(visit.network_checked_at))}`; networkCell.append(checked); }
-    const deviceCell = document.createElement('td'), deviceName = document.createElement('span'); deviceName.textContent = device.label; deviceCell.append(deviceName);
-    if (device.detail) { const detail = document.createElement('small'); detail.textContent = device.detail; deviceCell.append(detail); }
-    row.append(networkCell, deviceCell);
-    fragment.append(row);
-  }
-  $('visits').replaceChildren(fragment); $('empty').hidden = data.visits.length !== 0;
-  nextCursor = data.next_cursor; $('previous').disabled = history.length === 0; $('next').disabled = nextCursor === null;
-  $('data-status').textContent = `Atualizado em ${format.format(new Date())}.`;
+import{createClient}from'../vendor/supabase.js';
+import config from'../public-config.js';
+import{networkLabel,deviceLabel}from'./visit-labels.js';
+import{renderAnalytics,duration,downloadCsv,summaryRows}from'./dashboard.js';
+import{portfolioEditor}from'./editor.js';
+import{isExcluded,setExcluded}from'../tracker.js';
+if(window.self!==window.top){document.body.replaceChildren(document.createTextNode('Abra o painel diretamente no navegador.'));throw Error('Framed access is disabled')}
+const $=id=>document.getElementById(id),format=new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'medium',timeZone:'America/Fortaleza'});
+let client,cursor=null,nextCursor=null,history=[],loading=false,generation=0,currentReport=null;
+const status=text=>{$('auth-status').textContent=text},configured=/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(config.url)&&config.publishableKey.length>20;
+const editor=portfolioEditor(()=>client,owner=>owner===client&&!$('dashboard').hidden);
+function tab(name){for(const button of document.querySelectorAll('[data-admin-tab]')){const active=button.dataset.adminTab===name;button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;$('panel-'+button.dataset.adminTab).hidden=!active}if(name==='projects'&&!editor.isLoaded())editor.load()}
+for(const button of document.querySelectorAll('[data-admin-tab]')){button.addEventListener('click',()=>tab(button.dataset.adminTab));button.addEventListener('keydown',event=>{const names=['statistics','projects','preferences'],i=names.indexOf(button.dataset.adminTab);let next;if(event.key==='ArrowRight')next=names[(i+1)%3];if(event.key==='ArrowLeft')next=names[(i+2)%3];if(event.key==='Home')next=names[0];if(event.key==='End')next=names[2];if(next){event.preventDefault();tab(next);$('tab-'+next).focus()}})}
+function clean(){currentReport=null;$('dashboard').hidden=true;$('auth-view').hidden=false;$('password').value='';$('visits').replaceChildren();editor.clear();cursor=null;nextCursor=null;history=[];for(const id of['total','unique','latest','active-average','contact-total','tracked-total'])$(id).textContent='—';for(const id of['project-ranking','section-ranking','source-ranking','daily-chart','hourly-chart'])$(id).replaceChildren();for(const id of['measurement-note','period-comparison','data-status'])$(id).textContent='';$('export-summary').disabled=true;$('export-visits').disabled=true;tab('statistics')}
+async function leave(){generation++;clean();try{if(client)await client.auth.signOut({scope:'local'})}finally{status('Você saiu do painel.')}}
+function cell(text){const td=document.createElement('td');td.textContent=String(text??'');return td}
+async function loadVisits(){const request=generation;$('data-status').textContent='Carregando registros e estatísticas…';const{data,error}=await client.functions.invoke('visit-report',{body:{p_days:Number($('period').value),p_before_id:cursor}});if(request!==generation)throw Error('Session changed');if(error||!data?.analytics){$('visits').replaceChildren();throw error||Error('Report unavailable')}currentReport=data;$('total').textContent=String(data.total);$('unique').textContent=String(data.unique_ips);$('latest').textContent=data.latest?format.format(new Date(data.latest)):'Sem registros';
+ const fragment=document.createDocumentFragment();for(const visit of data.visits){const row=document.createElement('tr');row.append(cell(format.format(new Date(visit.at))),cell(visit.ip));for(const key of['city','region','country'])row.append(cell(visit[key]||'Não disponível'));
+ const network=networkLabel(visit),device=deviceLabel(visit),networkCell=cell(''),badge=document.createElement('span');badge.className=network.suspected?'network-badge suspected':'network-badge';badge.textContent=network.label;badge.title='Comparação com listas públicas; ausência de indícios não garante ausência de VPN.';networkCell.append(badge);if(visit.network_checked_at){const small=document.createElement('small');small.textContent='Verificado em '+format.format(new Date(visit.network_checked_at));networkCell.append(small)}const deviceCell=cell(device.label);if(device.detail){const small=document.createElement('small');small.textContent=device.detail;deviceCell.append(small)}row.append(networkCell,deviceCell,cell(visit.source||'Não registrado'),cell(visit.active_seconds===null?'Não registrado':duration(visit.active_seconds)));fragment.append(row)}
+ $('visits').replaceChildren(fragment);$('empty').hidden=data.visits.length!==0;nextCursor=data.next_cursor;$('previous').disabled=history.length===0;$('next').disabled=nextCursor===null;renderAnalytics(data);$('export-summary').disabled=false;$('export-visits').disabled=false;$('data-status').textContent='Atualizado em '+format.format(new Date())+'.';
 }
-async function refresh() { if (loading) return; loading = true; try { await loadVisits(); } catch { await leave(); status('Sessão expirada ou acesso não autorizado. Entre novamente.'); } finally { loading = false; } }
-$('period').addEventListener('change', () => { cursor = null; history = []; refresh(); });
-$('refresh').addEventListener('click', refresh);
-$('next').addEventListener('click', () => { if (loading || nextCursor === null) return; history.push(cursor); cursor = nextCursor; refresh(); });
-$('previous').addEventListener('click', () => { if (loading || !history.length) return; cursor = history.pop(); refresh(); });
-$('logout').addEventListener('click', leave);
-if (configured) {
-  client = createClient(config.url, config.publishableKey, { auth: { persistSession: false, autoRefreshToken: true, detectSessionInUrl: false } });
-  $('login-fields').disabled = false; status('');
-}
+$('login-form').addEventListener('submit',async event=>{event.preventDefault();if(!client||loading)return;loading=true;$('login-fields').disabled=true;status('Verificando acesso…');try{const{error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;generation++;await loadVisits();$('auth-view').hidden=true;$('dashboard').hidden=false;tab('statistics')}catch(error){await client.auth.signOut({scope:'local'});clean();status(error?.status===429?'Muitas tentativas. Aguarde antes de tentar novamente.':'Não foi possível entrar. Confira os dados ou tente novamente mais tarde.')}finally{$('password').value='';loading=false;$('login-fields').disabled=false}});
+async function refresh(){if(loading)return;loading=true;try{await loadVisits()}catch{await leave();status('Sessão expirada ou acesso indisponível. Entre novamente.')}finally{loading=false}}
+$('period').addEventListener('change',()=>{cursor=null;history=[];refresh()});$('refresh').addEventListener('click',refresh);$('next').addEventListener('click',()=>{if(loading||nextCursor===null)return;history.push(cursor);cursor=nextCursor;refresh()});$('previous').addEventListener('click',()=>{if(loading||!history.length)return;cursor=history.pop();refresh()});$('logout').addEventListener('click',leave);
+$('exclude-self').checked=isExcluded();$('exclude-self').addEventListener('change',()=>{try{setExcluded($('exclude-self').checked);$('exclude-status').textContent=$('exclude-self').checked?'Seus próximos acessos neste navegador serão ignorados.':'Os próximos acessos neste navegador voltarão a ser contabilizados.'}catch{$('exclude-self').checked=isExcluded();$('exclude-status').textContent='O navegador não permitiu salvar essa preferência.'}});
+function campaign(){const url=new URL('https://eliabemartinsart.github.io/');url.searchParams.set('utm_source',$('campaign-source').value);url.searchParams.set('utm_medium','portfolio');$('campaign-link').value=url.href}
+$('campaign-source').addEventListener('change',campaign);$('copy-campaign').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('campaign-link').value);$('campaign-status').textContent='Link copiado.'}catch{$('campaign-link').select();$('campaign-status').textContent='Selecione e copie o link acima.'}});campaign();
+$('export-summary').addEventListener('click',()=>{if(currentReport&&!loading)downloadCsv('portfolio-resumo-'+$('period').value+'dias.csv',summaryRows(currentReport))});
+$('export-visits').addEventListener('click',async()=>{if(loading||!currentReport)return;loading=true;$('export-visits').disabled=true;const request=generation,days=Number($('period').value),rows=[['Data e horário (Brasília)','IP','Cidade','Estado / região','País','Aparelho','Sistema','Navegador','Origem','Tempo ativo (segundos)','Indícios de VPN/proxy']],owner=client;let before=null;try{for(let page=0;page<201;page++){if(page===200)throw Error('Volume muito grande. Selecione um período menor para exportar.');const{data,error}=await owner.rpc('admin_visit_report',{p_days:days,p_before_id:before});if(error||request!==generation||$('dashboard').hidden)throw Error('Sessão expirada. Entre novamente para exportar.');for(const v of data.visits)rows.push([format.format(new Date(v.at)),v.ip,v.city,v.region,v.country,deviceLabel(v).label,v.os==='unknown'?'':v.os,v.browser==='unknown'?'':v.browser,v.source,v.active_seconds,networkLabel(v).label]);before=data.next_cursor;if(before===null)break;$('data-status').textContent='Preparando exportação: '+(rows.length-1)+' acessos…'}if(request===generation&&!$('dashboard').hidden){downloadCsv('portfolio-acessos-'+days+'dias.csv',rows);$('data-status').textContent='CSV preparado com '+(rows.length-1)+' acessos.'}}catch(error){$('data-status').textContent=error.message||'Não foi possível exportar.'}finally{loading=false;$('export-visits').disabled=!currentReport}});
+if(configured){client=createClient(config.url,config.publishableKey,{auth:{persistSession:false,autoRefreshToken:true,detectSessionInUrl:false}});$('login-fields').disabled=false;status('')}

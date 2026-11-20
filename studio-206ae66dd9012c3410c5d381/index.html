@@ -1,19 +1,5 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self';style-src 'self';img-src 'self' data:;connect-src https://qgrzyxwbrufhtkrealep.supabase.co;object-src 'none';base-uri 'none';form-action 'none';upgrade-insecure-requests">
-  <title>Acessos · Eliabe</title>
-  <link rel="icon" href="../assets/logos/eliabe.png">
-  <link rel="stylesheet" href="./admin.css?v=20261120-signals">
-  <script type="module" src="./app.js?v=20261120-signals"></script>
-</head>
-<body>
-  <header><a href="../" aria-label="Voltar ao portfólio"><img src="../assets/logos/eliabe.png" width="64" height="64" alt="Eliabe"></a><span>ÁREA PRIVADA</span></header>
-  <main>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self';style-src 'self';img-src 'self' data: blob: https:;connect-src https://qgrzyxwbrufhtkrealep.supabase.co;object-src 'none';base-uri 'none';form-action 'none';upgrade-insecure-requests"><title>Seu portfólio · Eliabe</title><link rel="icon" href="../assets/logos/eliabe.png"><link rel="stylesheet" href="./admin.css?v=20261120-complete"><script type="module" src="./app.js?v=20261120-complete"></script></head><body>
+<header><a href="../" aria-label="Voltar ao portfólio"><img src="../assets/logos/eliabe.png" width="64" height="64" alt="Eliabe"></a><span>ÁREA PRIVADA</span></header><main>
     <section id="auth-view" class="auth-layout">
       <div class="intro"><p class="eyebrow">SEU PORTFÓLIO, DE PERTO</p><h1>Quem passou<br>por aqui.</h1><p>Os acessos ao seu site em um só lugar.<br>Horário, IP e localização aproximada.</p><span class="tag">Acesso exclusivo do administrador</span></div>
       <div class="card auth-card">
@@ -21,14 +7,53 @@
         <p id="auth-status" role="status" aria-live="polite">O acesso administrativo ainda não foi ativado.</p>
       </div>
     </section>
-    <section id="dashboard" hidden>
-      <div class="dashboard-heading"><div><p class="eyebrow">SEU PORTFÓLIO</p><h1>Acessos ao site</h1></div><button id="logout" class="secondary">Sair</button></div>
-      <div class="toolbar"><label for="period">Período <select id="period"><option value="1">Últimas 24 horas</option><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option></select></label><button id="refresh" class="secondary">Atualizar</button></div>
-      <div class="metrics"><article class="card"><span>Acessos registrados</span><strong id="total">—</strong></article><article class="card"><span>IPs distintos</span><strong id="unique">—</strong></article><article class="card"><span>Último acesso</span><strong id="latest" class="date">—</strong></article></div>
-      <div class="card table-card"><div class="table-heading"><h2>Registro de visitas</h2><span>Horário de Brasília</span></div><p class="table-hint">No celular, deslize a tabela para ver todas as informações.</p><div class="table-scroll"><table><thead><tr><th scope="col">Data e horário</th><th scope="col">Endereço IP</th><th scope="col">Cidade</th><th scope="col">Estado / região</th><th scope="col">País</th><th scope="col">VPN / proxy</th><th scope="col">Aparelho</th></tr></thead><tbody id="visits"></tbody></table></div><p id="empty" class="muted" hidden>Nenhum acesso registrado neste período.</p><div class="pagination"><button id="previous" class="secondary" disabled>Mais recentes</button><button id="next" class="secondary" disabled>Mais antigos</button></div></div>
-      <p id="data-status" role="status" aria-live="polite"></p>
-      <p class="footnote">Uma visita é um acesso registrado. Um mesmo IP pode ser compartilhado por várias pessoas. Registros mantidos por até 30 dias. Cidade, estado e país são estimados pelo IP e podem indicar a região da operadora ou de uma VPN. Não representam a localização exata. VPN/proxy indica apenas correspondência em listas públicas; ausência de indícios não garante uma conexão direta. Aparelho, sistema e navegador são estimados pela identificação enviada pelo navegador. Registros antigos podem não ter esse dado. Fonte: <a href="https://ipwhois.io" target="_blank" rel="noopener noreferrer">IPWHOIS.io</a>.</p>
-    </section>
-  </main>
-</body>
-</html>
+
+<section id="dashboard" hidden>
+ <div class="dashboard-heading"><div><p class="eyebrow">SEU PORTFÓLIO, DE PERTO</p><h1>Visão geral</h1></div><div class="heading-actions"><a class="secondary button-link" href="../" target="_blank" rel="noopener noreferrer">Abrir site</a><button id="logout" class="secondary">Sair</button></div></div>
+ <nav class="admin-tabs" role="tablist" aria-label="Áreas do painel"><button id="tab-statistics" type="button" role="tab" aria-selected="true" aria-controls="panel-statistics" data-admin-tab="statistics">Estatísticas</button><button id="tab-projects" type="button" role="tab" aria-selected="false" aria-controls="panel-projects" data-admin-tab="projects" tabindex="-1">Projetos e textos</button><button id="tab-preferences" type="button" role="tab" aria-selected="false" aria-controls="panel-preferences" data-admin-tab="preferences" tabindex="-1">Preferências</button></nav>
+ <section id="panel-statistics" role="tabpanel" aria-labelledby="tab-statistics">
+  <div class="toolbar"><label for="period">Período<select id="period"><option value="1">Últimas 24 horas</option><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option></select></label><div class="heading-actions"><button id="refresh" class="secondary">Atualizar</button><button id="export-summary" class="secondary" disabled>Exportar resumo CSV</button><button id="export-visits" class="secondary" disabled>Exportar acessos CSV</button></div></div>
+  <p id="period-comparison" class="muted"></p>
+  <div class="metrics"><article class="card"><span>Acessos registrados</span><strong id="total">—</strong></article><article class="card"><span>IPs distintos</span><strong id="unique">—</strong></article><article class="card"><span>Último acesso</span><strong id="latest" class="date">—</strong></article><article class="card"><span>Tempo ativo médio</span><strong id="active-average" class="date">—</strong></article><article class="card"><span>Cliques em contatos</span><strong id="contact-total">—</strong></article><article class="card"><span>Acessos com nova medição</span><strong id="tracked-total">—</strong></article></div>
+  <p id="measurement-note" class="footnote"></p>
+  <div class="insights-grid"><article class="card insight-card"><h2>Acessos por dia</h2><p class="muted">Evolução no período selecionado.</p><div id="daily-chart" class="chart"></div></article><article class="card insight-card"><h2>Horários de maior movimento</h2><p class="muted">Horário de Brasília.</p><div id="hourly-chart" class="chart"></div></article></div>
+  <div class="insights-grid"><article class="card insight-card"><h2>De onde vieram</h2><p class="muted">Origem informada pelo navegador ou por links de divulgação.</p><div id="source-ranking"></div></article><article class="card insight-card"><h2>Interesse em contato</h2><div class="contact-metrics"><div><span>WhatsApp</span><strong id="whatsapp-clicks">0</strong></div><div><span>E-mail</span><strong id="email-clicks">0</strong></div></div><p class="footnote">Cliques não confirmam envio de mensagem ou contratação. O conteúdo das conversas não é coletado.</p></article></div>
+  <article class="card table-card analytics-card"><h2>Projetos que despertam interesse</h2><p class="muted">Aberturas dos detalhes, cliques no link e tempo ativo aproximado.</p><div class="table-scroll"><table class="compact-table"><thead><tr><th>Projeto</th><th>Aberturas</th><th>Cliques no link</th><th>Tempo ativo</th></tr></thead><tbody id="project-ranking"></tbody></table></div></article>
+  <article class="card table-card analytics-card"><h2>Seções visualizadas</h2><div class="table-scroll"><table class="compact-table"><thead><tr><th>Seção</th><th>Visualizações</th><th>Tempo ativo</th></tr></thead><tbody id="section-ranking"></tbody></table></div><p class="footnote">O tempo é estimado enquanto a página está visível e em foco. A medição pausa após um minuto sem interação.</p></article>
+  <div class="card table-card"><div class="table-heading"><h2>Registro de visitas</h2><span>Horário de Brasília</span></div><p class="table-hint">No celular, deslize a tabela para ver todas as informações.</p><div class="table-scroll"><table><thead><tr><th scope="col">Data e horário</th><th scope="col">Endereço IP</th><th scope="col">Cidade</th><th scope="col">Estado / região</th><th scope="col">País</th><th scope="col">VPN / proxy</th><th scope="col">Aparelho</th><th scope="col">Origem</th><th scope="col">Tempo ativo</th></tr></thead><tbody id="visits"></tbody></table></div><p id="empty" class="muted" hidden>Nenhum acesso registrado neste período.</p><div class="pagination"><button id="previous" class="secondary" disabled>Mais recentes</button><button id="next" class="secondary" disabled>Mais antigos</button></div></div>
+  <p id="data-status" role="status" aria-live="polite"></p><details class="footnote"><summary>Sobre a precisão e a privacidade dos dados</summary><p>Um mesmo IP pode ser compartilhado por várias pessoas. Localização, aparelho e sinais de VPN/proxy são aproximados. Não representam identificação pessoal ou localização exata. Ausência de indícios em listas não comprova ausência de VPN. Dados mantidos por até 30 dias, com limpeza diária. Fonte da localização: <a href="https://ipwhois.io" target="_blank" rel="noopener noreferrer">IPWHOIS.io</a>. Listas de rede: X4BNet, monosans e Tor Project.</p></details>
+ </section>
+ <section id="panel-projects" role="tabpanel" aria-labelledby="tab-projects" hidden>
+  <div class="section-intro"><h2>Seu portfólio nas suas mãos</h2><p class="muted">Edite projetos e apresentações. Salve um rascunho ou publique a versão pronta.</p></div>
+  <div class="editor-toolbar"><label for="project-select">Projeto<select id="project-select"></select></label><button type="button" id="new-project" class="secondary">Adicionar projeto</button><button type="button" id="reload-editor" class="secondary">Descartar alterações locais</button></div>
+  <p id="editor-revision" class="muted"></p><p id="editor-dirty" class="editor-notice"></p>
+  <form id="editor-form"><div class="editor-layout"><div class="card editor-fields"><fieldset id="project-fields" disabled>
+<label for="project-id">Identificador</label><input id="project-id" maxlength="64">
+<label for="project-title">Título</label><input id="project-title" maxlength="160" required>
+<label for="project-category">Categoria exibida</label><input id="project-category" maxlength="100" required>
+<label for="project-year">Ano / período</label><input id="project-year" maxlength="30">
+<label for="project-role">Sua participação</label><input id="project-role" maxlength="200">
+<label for="project-function">Funções desempenhadas</label><textarea id="project-function" maxlength="500" rows="2"></textarea>
+<label for="project-production">Produção / autoria</label><input id="project-production" maxlength="240">
+<label for="project-description">Descrição</label><textarea id="project-description" maxlength="3000" rows="5"></textarea>
+<label for="project-image">URL da capa</label><input id="project-image" maxlength="1000">
+<label for="project-alt">Descrição da imagem</label><input id="project-alt" maxlength="240" required>
+<label for="project-link">Link do projeto (HTTPS)</label><input id="project-link" maxlength="1000">
+<label for="project-linkLabel">Texto do botão</label><input id="project-linkLabel" maxlength="80" required>
+<label for="project-cardKicker">Linha superior do cartão</label><input id="project-cardKicker" maxlength="160">
+<label for="project-cardCredit">Crédito no cartão</label><input id="project-cardCredit" maxlength="240">
+<label for="project-award">Reconhecimento / selo</label><input id="project-award" maxlength="80">
+   <label for="project-group">Área para os filtros</label><select id="project-group"><option value="animacao">Animação</option><option value="direcao edicao">Direção e edição</option><option value="editorial">Editorial</option></select>
+   <div class="checkbox-group"><label><input id="project-visible" type="checkbox">Exibir este projeto no site</label><label><input id="project-portrait" type="checkbox">Capa em formato vertical</label><label><input id="project-featured" type="checkbox">Exibir no painel de destaques</label></div>
+   <p class="footnote">Os destaques mantêm apenas projetos audiovisuais horizontais. Desmarcar “Exibir no site” arquiva o projeto sem apagar seus dados.</p>
+   <div class="heading-actions"><button id="move-up" type="button" class="secondary">Mover antes</button><button id="move-down" type="button" class="secondary">Mover depois</button></div>
+  </fieldset></div><aside class="card editor-preview"><h2>Capa do projeto</h2><img id="project-preview" alt="Prévia da capa" hidden referrerpolicy="no-referrer"><label for="image-file">Enviar nova imagem</label><input id="image-file" type="file" accept="image/jpeg,image/png,image/webp"><p class="footnote">JPG, PNG ou WebP, até 12 MB. A imagem será otimizada antes do envio. Capas enviadas podem ser abertas pelo link; o projeto só aparece no site depois de publicar.</p><p class="footnote">Preencha todos os campos essenciais antes de salvar um projeto novo.</p></aside></div>
+  <article class="card editor-fields site-editor"><h2>Apresentação e contato</h2><label for="site-heroIntro">Texto de abertura</label><textarea id="site-heroIntro" rows="3" maxlength="1500"></textarea><label for="site-aboutDescription">Texto sobre seu trabalho</label><textarea id="site-aboutDescription" rows="4" maxlength="1500"></textarea><label for="site-contactDescription">Apresentação do contato</label><textarea id="site-contactDescription" rows="3" maxlength="1500"></textarea><label for="site-email">E-mail público de contato</label><input id="site-email" type="email" maxlength="254" required><label for="site-whatsapp">WhatsApp público (país, DDD e número; só dígitos)</label><input id="site-whatsapp" inputmode="numeric" pattern="[0-9]{10,15}" maxlength="15" required><p class="footnote">Esses contatos aparecem no portfólio e não alteram seu login administrativo.</p></article>
+  <fieldset id="editor-actions" class="editor-actions"><button type="submit" value="draft" class="secondary">Salvar rascunho</button><button type="submit" value="publish" class="primary">Publicar no site</button><button type="button" id="restore-published" class="secondary">Usar versão publicada</button></fieldset></form>
+  <p id="editor-status" role="status" aria-live="polite"></p>
+ </section>
+ <section id="panel-preferences" role="tabpanel" aria-labelledby="tab-preferences" hidden>
+  <article class="card insight-card preference-card"><h2>Seus acessos nas estatísticas</h2><label class="preference-toggle"><input type="checkbox" id="exclude-self">Ignorar minhas visitas neste navegador</label><p class="muted">Vale para os próximos acessos ao site neste navegador. Ative também em outros celulares e computadores que você usa. Os registros anteriores são preservados.</p><p id="exclude-status" role="status" aria-live="polite"></p></article>
+  <article class="card insight-card preference-card"><h2>Links de divulgação</h2><p class="muted">Gere um link para identificar a origem dos acessos mesmo quando o aplicativo não informa de onde vieram.</p><label for="campaign-source">Onde você vai divulgar?</label><select id="campaign-source"><option value="instagram">Instagram</option><option value="whatsapp">WhatsApp</option><option value="youtube">YouTube</option><option value="linkedin">LinkedIn</option><option value="facebook">Facebook</option><option value="tiktok">TikTok</option><option value="google">Google</option></select><label for="campaign-link">Link pronto para compartilhar</label><input id="campaign-link" readonly><button id="copy-campaign" type="button" class="secondary">Copiar link</button><p id="campaign-status" role="status" aria-live="polite"></p></article>
+ </section>
+</section></main></body></html>

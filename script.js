@@ -1,3 +1,4 @@
+import {syncPublished} from './content.js';
 (() => {
   "use strict";
 
@@ -192,8 +193,8 @@
     revealItems.forEach((item) => revealObserver.observe(item));
   }
 
-  const slides = [...document.querySelectorAll("[data-slide]")];
-  const slideDots = [...document.querySelectorAll("[data-slide-dot]")];
+  let slides = [...document.querySelectorAll("[data-slide]")];
+  let slideDots = [...document.querySelectorAll("[data-slide-dot]")];
   const slideCount = document.querySelector("[data-slide-count]");
   const nextSlideButton = document.querySelector("[data-slide-next]");
   const previousSlideButton = document.querySelector("[data-slide-prev]");
@@ -216,6 +217,7 @@
     if (heroPlayLink) {
       const activeSlide = slides[currentSlide];
       heroPlayLink.href = activeSlide.dataset.projectLink;
+      heroPlayLink.dataset.projectId = activeSlide.dataset.projectId || Object.keys(projects).find(key=>projects[key].title===activeSlide.dataset.projectTitle) || "";
       heroPlayLink.textContent = activeSlide.dataset.actionLabel || "PLAY!";
       heroPlayLink.setAttribute("aria-label", activeSlide.dataset.actionDescription || `Abrir ${activeSlide.dataset.projectTitle}`);
     }
@@ -235,12 +237,7 @@
     showSlide(currentSlide + 1);
     startSlideTimer();
   });
-  slideDots.forEach((dot) => {
-    dot.addEventListener("click", () => {
-      showSlide(Number(dot.dataset.slideDot));
-      startSlideTimer();
-    });
-  });
+  document.querySelector(".slide-dots")?.addEventListener("click",event=>{const dot=event.target.closest("[data-slide-dot]");if(dot){showSlide(Number(dot.dataset.slideDot));startSlideTimer();}});
   // Pointer events cover both touch swipes and mouse drags.
   // Vertical scrolling and pinch zoom remain native to the browser.
   let swipeStart = null;
@@ -290,28 +287,14 @@
         candidate.classList.toggle("is-active", active);
         candidate.setAttribute("aria-pressed", String(active));
       });
-      projectCards.forEach((card) => {
+      document.querySelectorAll("[data-project]").forEach((card) => {
         const visible = filter === "todos" || card.dataset.category.split(/\s+/).includes(filter);
         card.classList.toggle("is-hidden", !visible);
       });
     });
   });
 
-  if (!prefersReducedMotion && window.matchMedia("(pointer: fine)").matches) {
-    projectCards.forEach((card) => {
-      card.addEventListener("pointermove", (event) => {
-        const rect = card.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - 0.5;
-        const y = (event.clientY - rect.top) / rect.height - 0.5;
-        card.style.setProperty("--ry", `${x * 4.5}deg`);
-        card.style.setProperty("--rx", `${y * -4.5}deg`);
-      });
-      card.addEventListener("pointerleave", () => {
-        card.style.setProperty("--ry", "0deg");
-        card.style.setProperty("--rx", "0deg");
-      });
-    });
-  }
+  if(!prefersReducedMotion&&window.matchMedia("(pointer: fine)").matches){document.addEventListener("pointermove",event=>{const card=event.target.closest("[data-project]");if(!card)return;const rect=card.getBoundingClientRect();card.style.setProperty("--ry",((event.clientX-rect.left)/rect.width-.5)*4.5+"deg");card.style.setProperty("--rx",-((event.clientY-rect.top)/rect.height-.5)*4.5+"deg");});document.addEventListener("pointerout",event=>{const card=event.target.closest("[data-project]");if(card&&!card.contains(event.relatedTarget)){card.style.setProperty("--ry","0deg");card.style.setProperty("--rx","0deg");}});}
 
   const dialogFields = {
     image: dialog?.querySelector("[data-dialog-image]"),
@@ -329,6 +312,7 @@
     const project = projects[projectId];
     if (!project || !dialog) return;
     lastFocusedElement = opener || document.activeElement;
+    dialog.dataset.project=projectId;
     dialogFields.image.src = project.image;
     dialogFields.image.alt = project.alt;
     dialogFields.category.textContent = project.category;
@@ -344,12 +328,11 @@
     dialog.classList.toggle("has-long-title", project.title.length > 25);
     dialog.classList.toggle("has-extra-long-title", project.title.length > 38);
     dialog.showModal();
+    document.dispatchEvent(new CustomEvent("portfolio:project-open",{detail:{id:projectId}}));
     document.body.classList.add("dialog-open");
   };
 
-  projectCards.forEach((card) => {
-    card.addEventListener("click", () => openProject(card.dataset.project, card));
-  });
+  document.addEventListener("click",event=>{const card=event.target.closest("[data-project]");if(card)openProject(card.dataset.project,card);});
 
   document.querySelectorAll("[data-project-jump]").forEach((button) => {
     button.addEventListener("click", () => openProject(button.dataset.projectJump, button));
@@ -395,7 +378,7 @@
           const tick = (now) => {
             const progressValue = Math.min((now - start) / duration, 1);
             const eased = 1 - Math.pow(1 - progressValue, 3);
-            counter.textContent = String(Math.round(target * eased));
+            counter.textContent = String(Math.round(Number(counter.dataset.count) * eased));
             if (progressValue < 1) requestAnimationFrame(tick);
           };
           requestAnimationFrame(tick);
@@ -406,6 +389,8 @@
       countObserver.observe(counter);
     });
   }
+
+  syncPublished({projects,onHeroUpdated:()=>{slides=[...document.querySelectorAll("[data-slide]")];slideDots=[...document.querySelectorAll("[data-slide-dot]")];showSlide(0);startSlideTimer();}});
 
   const yearTarget = document.querySelector("[data-current-year]");
   if (yearTarget) yearTarget.textContent = String(currentYear);
