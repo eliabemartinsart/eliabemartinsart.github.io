@@ -62,3 +62,5 @@ O ambiente de execução local ficou indisponível durante esta atualização. A
 
 ## Revisão de autorização da localização
 A atualização de visit-report foi bloqueada pela revisão automática por falta de autorização explícita do destino IPWHOIS.io para receber IPs. A versão nova de visit-report NÃO importa nem executa consultas de localização externas: lê apenas o cache já existente. A checagem de rede baixa arquivos públicos sem incluir IPs dos visitantes. Novas consultas de cidade/estado/país ficam pendentes dessa autorização; sem resultado salvo, a interface mostra Não disponível. Os arquivos geo.ts antigos são mantidos apenas como fonte histórica, sem inclusão no deployment novo.
+
+Entradas novas portfolio.js e panel.js usam versões nos imports para evitar mistura com arquivos em cache. script.js e app.js antigos foram preservados para páginas já abertas/em cache. O coletor mantém compatibilidade com acessos sem eventos; recordVisit permanece exportado para versões anteriores do rastreador.

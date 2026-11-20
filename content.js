@@ -1,4 +1,4 @@
-import config from './backend/public-config.js';import{validateContent}from'./backend/public-model.js';
+import config from './backend/public-config.js?v=20261120-complete2';import{validateContent}from'./backend/public-model.js?v=20261120-complete2';
 const el=(tag,className,text)=>{const e=document.createElement(tag);if(className)e.className=className;if(text!==undefined)e.textContent=text;return e};
 function renderProject(p,index){const card=el('button','project-card reveal is-visible'+(p.portrait?' project-portrait':''));card.type='button';card.dataset.category=p.group;card.dataset.project=p.id;card.setAttribute('aria-haspopup','dialog');
  const imageWrap=el('span','project-image'),img=el('img');img.src=p.image;img.alt=p.alt;img.loading='lazy';img.referrerPolicy='no-referrer';imageWrap.append(img);card.append(imageWrap,el('span','project-overlay'));

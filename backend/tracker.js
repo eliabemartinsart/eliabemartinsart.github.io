@@ -1,4 +1,4 @@
-import{SOURCE_LABELS,SECTION_IDS}from'./public-model.js';
+import{SOURCE_LABELS,SECTION_IDS}from'./public-model.js?v=20261120-complete2';
 export const EXCLUDE_KEY='eliabe.analytics.exclude';
 export function isExcluded(storage){try{return(storage||globalThis.localStorage)?.getItem(EXCLUDE_KEY)==='1'}catch{return false}}
 export function setExcluded(value,storage){(storage||globalThis.localStorage).setItem(EXCLUDE_KEY,value?'1':'0')}
@@ -27,3 +27,5 @@ export function startAnalytics(config){
  post('collect-visit',{source:sourceLabel(document.referrer,location.href)}).then(r=>r.ok&&r.status!==204?r.json():null).then(data=>{if(typeof data?.token==='string'){token=data.token;flush()}}).catch(()=>{});
  return{stop(){stopped=true;clearInterval(interval);observer?.disconnect();queue=[];for(const n of['pointerdown','keydown','scroll'])document.removeEventListener(n,onActivity);document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('focus',onVisibility);window.removeEventListener('blur',onVisibility);window.removeEventListener('pagehide',onHide)}};
 }
+
+export function recordVisit(collectorUrl,publishableKey){if(navigator.globalPrivacyControl===true||isExcluded())return;const url=new URL(collectorUrl);if(url.protocol!=='https:'||!url.hostname.endsWith('.supabase.co')||!url.pathname.endsWith('/functions/v1/collect-visit'))throw Error('Invalid collector');return fetch(url.href,{method:'POST',headers:{apikey:publishableKey},credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',keepalive:true,body:''}).catch(()=>{})}

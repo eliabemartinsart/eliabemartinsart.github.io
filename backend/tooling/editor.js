@@ -1,4 +1,4 @@
-import{validateContent,safePublicUrl}from'../public-model.js';
+import{validateContent,safePublicUrl}from'../public-model.js?v=20261120-complete2';
 const fields=['id','title','category','year','role','function','production','description','image','alt','link','linkLabel','cardKicker','cardCredit','award','group'];
 const siteFields=['heroIntro','aboutDescription','contactDescription','email','whatsapp'];
 const copy=value=>structuredClone(value),$=id=>document.getElementById(id);
