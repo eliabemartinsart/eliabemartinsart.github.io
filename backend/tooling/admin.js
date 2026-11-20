@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import config from '../../admin/config.js';
+import config from '../public-config.js';
 if (window.self !== window.top) { document.body.replaceChildren(document.createTextNode('Abra o painel diretamente no navegador.')); throw new Error('Framed access is disabled'); }
 const $ = (id) => document.getElementById(id);
 let client, factorId, cursor = null, nextCursor = null, history = [], loading = false, generation = 0;

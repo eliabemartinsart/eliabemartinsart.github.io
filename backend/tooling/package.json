@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild admin.js --bundle --format=esm --minify --outfile=../../admin/app.js",
+    "build": "esbuild admin.js --bundle --format=esm --minify --outfile=../../studio-206ae66dd9012c3410c5d381/app.js",
     "test": "node test-security.mjs"
   },
   "dependencies": {

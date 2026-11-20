@@ -2,7 +2,7 @@
 
 ## Projeto
 
-Projeto Supabase: qgrzyxwbrufhtkrealep, região São Paulo, organização pessoal do proprietário, plano gratuito. Login em /admin/ no portfólio.
+Projeto Supabase: qgrzyxwbrufhtkrealep, região São Paulo, organização pessoal do proprietário, plano gratuito. Login em /studio-206ae66dd9012c3410c5d381/ no portfólio.
 
 O proprietário deve criar sua senha diretamente no formulário privado do Supabase. Depois da criação, autorizar somente o UUID desse usuário em portfolio_private.site_admins por uma operação administrativa no banco. Nenhuma senha pertence ao repositório. O primeiro login deve concluir TOTP antes da validação final de ponta a ponta.
 
@@ -20,10 +20,12 @@ O job portfolio-visit-retention limpa registros diariamente às 06:00 UTC (03:00
 
 ## Compilação e verificação
 
-Em backend/tooling: npm ci, npm test e npm run build. O build gera admin/app.js com versões fixadas no lockfile. Configurar somente URL e publishable key em admin/config.js antes de recompilar. Senhas e chaves secretas nunca entram no código cliente.
+Em backend/tooling: npm ci, npm test e npm run build. O build gera studio-206ae66dd9012c3410c5d381/app.js com versões fixadas no lockfile. Configurar somente URL e publishable key em backend/public-config.js antes de recompilar. Senhas e chaves secretas nunca entram no código cliente.
 
 Os testes em PostgreSQL WebAssembly cobrem negação anônima, outras contas, MFA, sessões revogadas, acesso direto às tabelas, escalonamento de privilégios, limites de escrita, paginação e retenção. Verificações no projeto hospedado confirmaram grants, rejeição de leitura sem login e coleta sem aceitar IPs fornecidos pelo cliente.
 
 Tokens do painel ficam somente em memória. CSP permite scripts locais e conexão ao projeto específico. A interface recusa execução dentro de frames; GitHub Pages não permite configurar frame-ancestors como cabeçalho HTTP, portanto essa recusa não substitui o cabeçalho completamente.
 
 Nenhum sistema pode ser declarado sem vulnerabilidades. A validação final depende do primeiro acesso real do proprietário. Mantenha dependências, contas e segredos atualizados; limites e disponibilidade seguem o plano gratuito do provedor.
+
+O caminho do painel usa um identificador aleatório e não tem link na navegação pública. /admin/ foi removido sem redirecionamento. O repositório é público: o endereço pode ser descoberto pelo código, portanto não constitui segredo nem substitui autenticação e autorização.

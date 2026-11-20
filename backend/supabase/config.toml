@@ -1,6 +1,7 @@
 project_id = "eliabe-portfolio-admin"
 
 [auth]
+site_url = "https://eliabemartinsart.github.io/studio-206ae66dd9012c3410c5d381/"
 enable_signup = false
 enable_anonymous_sign_ins = false
 minimum_password_length = 16
