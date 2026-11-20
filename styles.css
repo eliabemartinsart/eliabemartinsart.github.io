@@ -1656,7 +1656,7 @@ img {
   position: relative;
   display: grid;
   min-height: 74vh;
-  padding: clamp(72px, 8vw, 120px) 32px;
+  padding: clamp(100px, 14vw, 190px) 32px;
   place-items: center;
   overflow: hidden;
   background:
@@ -1679,10 +1679,10 @@ img {
   z-index: 2;
 }
 
-.closing-copy > p {
+.closing-section > p {
   margin: 0 0 16px;
   color: var(--yellow);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.16em;
 }
@@ -2489,35 +2489,25 @@ img {
 }
 
 
-/* Responsive brand signature: original logo used as an alpha mask. */
-.closing-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  align-items: center;
-  gap: clamp(32px, 5vw, 72px);
-  width: min(100%, var(--max-width));
-  text-align: left;
-}
-
-.closing-copy {
-  min-width: 0;
-}
-
-.closing-copy h2 {
-  margin: 0 0 32px;
-  font-size: clamp(2.4rem, 4.2vw, 4.6rem);
-  line-height: 1;
-  overflow-wrap: normal;
-}
-
-.warhol-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+/* Decorative, full-bleed background band; no content is placed over it. */
+.brand-background {
+  position: relative;
   width: 100%;
-  min-width: 0;
+  aspect-ratio: 4;
   overflow: hidden;
-  border-radius: 22px;
   isolation: isolate;
+  background: var(--ink);
+}
+
+.brand-background > .warhol-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  align-content: start;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
 }
 
 .warhol-panel {
@@ -2538,25 +2528,24 @@ img {
   mask-mode: alpha;
 }
 
-@media (max-width: 900px) {
-  .closing-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 40px;
-    max-width: 600px;
+@media (min-width: 1800px) {
+  .brand-background { aspect-ratio: 6; }
+  .brand-background > .warhol-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
+}
 
-  .closing-copy h2 {
-    max-width: 580px;
-    font-size: clamp(2.3rem, 7.5vw, 4rem);
+@media (max-width: 1100px) {
+  .brand-background { aspect-ratio: 3; }
+  .brand-background > .warhol-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
+}
 
-  .warhol-grid {
+@media (max-width: 600px) {
+  .brand-background { aspect-ratio: 1; }
+  .brand-background > .warhol-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    border-radius: 18px;
-  }
-
-  .warhol-extra {
-    display: none;
   }
 }
 
