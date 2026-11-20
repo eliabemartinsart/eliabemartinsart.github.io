@@ -1656,7 +1656,7 @@ img {
   position: relative;
   display: grid;
   min-height: 74vh;
-  padding: clamp(100px, 14vw, 190px) 32px;
+  padding: clamp(72px, 8vw, 120px) 32px;
   place-items: center;
   overflow: hidden;
   background:
@@ -1679,10 +1679,10 @@ img {
   z-index: 2;
 }
 
-.closing-section > p {
+.closing-copy > p {
   margin: 0 0 16px;
   color: var(--yellow);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.16em;
 }
@@ -2485,6 +2485,78 @@ img {
 
   .dialog-link {
     width: 100%;
+  }
+}
+
+
+/* Responsive brand signature: original logo used as an alpha mask. */
+.closing-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+  width: min(100%, var(--max-width));
+  text-align: left;
+}
+
+.closing-copy {
+  min-width: 0;
+}
+
+.closing-copy h2 {
+  margin: 0 0 32px;
+  font-size: clamp(2.4rem, 4.2vw, 4.6rem);
+  line-height: 1;
+  overflow-wrap: normal;
+}
+
+.warhol-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 22px;
+  isolation: isolate;
+}
+
+.warhol-panel {
+  display: grid;
+  aspect-ratio: 1;
+  min-width: 0;
+  place-items: center;
+  background-color: var(--panel);
+}
+
+.warhol-panel > span {
+  display: block;
+  width: 82%;
+  aspect-ratio: 1;
+  background-color: var(--logo-ink);
+  -webkit-mask: url("./assets/logos/eliabe.png") center / contain no-repeat;
+  mask: url("./assets/logos/eliabe.png") center / contain no-repeat;
+  mask-mode: alpha;
+}
+
+@media (max-width: 900px) {
+  .closing-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+    max-width: 600px;
+  }
+
+  .closing-copy h2 {
+    max-width: 580px;
+    font-size: clamp(2.3rem, 7.5vw, 4rem);
+  }
+
+  .warhol-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-radius: 18px;
+  }
+
+  .warhol-extra {
+    display: none;
   }
 }
 
