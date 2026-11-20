@@ -196,6 +196,8 @@
   const slideDots = [...document.querySelectorAll("[data-slide-dot]")];
   const slideCount = document.querySelector("[data-slide-count]");
   const nextSlideButton = document.querySelector("[data-slide-next]");
+  const previousSlideButton = document.querySelector("[data-slide-prev]");
+  const swipeArea = document.querySelector("[data-slide-swipe]");
   const heroPlayLink = document.querySelector("[data-hero-play]");
   const heroFrame = document.querySelector("[data-hero-frame]");
   let currentSlide = 0;
@@ -225,6 +227,10 @@
     slideTimer = window.setInterval(() => showSlide(currentSlide + 1), 5200);
   };
 
+  previousSlideButton?.addEventListener("click", () => {
+    showSlide(currentSlide - 1);
+    startSlideTimer();
+  });
   nextSlideButton?.addEventListener("click", () => {
     showSlide(currentSlide + 1);
     startSlideTimer();
@@ -235,6 +241,40 @@
       startSlideTimer();
     });
   });
+  // Pointer events cover both touch swipes and mouse drags.
+  // Vertical scrolling and pinch zoom remain native to the browser.
+  let swipeStart = null;
+  swipeArea?.addEventListener("pointerdown", (event) => {
+    if (!event.isPrimary) {
+      swipeStart = null;
+      startSlideTimer();
+      return;
+    }
+    if (event.button !== 0) return;
+    swipeStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    window.clearInterval(slideTimer);
+    swipeArea.setPointerCapture(event.pointerId);
+  });
+  swipeArea?.addEventListener("pointerup", (event) => {
+    if (!swipeStart || swipeStart.id !== event.pointerId) return;
+    const dx = event.clientX - swipeStart.x;
+    const dy = event.clientY - swipeStart.y;
+    swipeStart = null;
+    const threshold = Math.max(32, Math.min(80, swipeArea.getBoundingClientRect().width * 0.08));
+    if (Math.abs(dx) >= threshold && Math.abs(dx) > Math.abs(dy) * 1.25) {
+      showSlide(currentSlide + (dx < 0 ? 1 : -1));
+    }
+    startSlideTimer();
+  });
+  const cancelSwipe = (event) => {
+    if (!swipeStart || swipeStart.id !== event.pointerId) return;
+    swipeStart = null;
+    startSlideTimer();
+  };
+  swipeArea?.addEventListener("pointercancel", cancelSwipe);
+  swipeArea?.addEventListener("lostpointercapture", cancelSwipe);
+  swipeArea?.addEventListener("dragstart", (event) => event.preventDefault());
+
   heroFrame?.addEventListener("mouseenter", () => window.clearInterval(slideTimer));
   heroFrame?.addEventListener("mouseleave", startSlideTimer);
   showSlide(0);

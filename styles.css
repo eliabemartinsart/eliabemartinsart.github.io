@@ -460,6 +460,10 @@ img {
 }
 
 .hero-slides {
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
@@ -491,7 +495,12 @@ img {
   content: "";
 }
 
+.hero-slides:active {
+  cursor: grabbing;
+}
+
 .hero-slide img {
+  -webkit-user-drag: none;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -527,11 +536,16 @@ img {
 }
 
 .frame-controls {
-  height: 54px;
-  padding-top: 8px;
+  height: auto;
+  min-height: 76px;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
 }
 
 .slide-dots {
+  flex: 1;
+  min-width: 100px;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -554,21 +568,45 @@ img {
   background: var(--yellow);
 }
 
-.frame-next {
-  width: 33px;
-  height: 33px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-  transition: background 200ms ease, color 200ms ease;
+.frame-arrows {
+  display: flex;
+  flex: none;
+  gap: 8px;
 }
 
-.frame-next:hover,
-.frame-next:focus-visible {
+.frame-arrow {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  place-items: center;
+  border: 1px solid var(--yellow);
+  border-radius: 50%;
   background: var(--yellow);
   color: var(--ink);
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms ease;
+}
+
+.frame-arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.frame-arrow:hover {
+  background: var(--paper);
+  transform: translateY(-2px);
+}
+
+.frame-arrow:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 3px;
 }
 
 .hero-sticker {

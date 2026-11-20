@@ -20,7 +20,7 @@
       type="image/png"
       href="./assets/logos/eliabe.png"
     />
-    <link rel="stylesheet" href="./styles.css?v=20261120-warhol-background" />
+    <link rel="stylesheet" href="./styles.css?v=20261120-swipe" />
   </head>
   <body>
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -79,7 +79,7 @@
               <span>SELECTED WORK</span>
               <span data-slide-count>01 / 09</span>
             </div>
-            <div class="hero-slides">
+            <div class="hero-slides" data-slide-swipe>
               <figure class="hero-slide is-active" data-slide data-project-title="Babaçu" data-project-link="https://muirak.com/projetos-autorais/projeto-baba%C3%A7u.html" data-action-label="VER!" data-action-description="Conhecer o projeto Babaçu">
                 <img src="./assets/covers/babacu.webp" alt="Cena do projeto de animação Babaçu" />
                 <figcaption><span>ANIMAÇÃO 2D · 2024—2026</span><strong>Babaçu</strong></figcaption>
@@ -129,7 +129,14 @@
                 <button type="button" data-slide-dot="7" aria-label="Ver A Criança que Fazia Muitos Atos de Amor"></button>
                 <button type="button" data-slide-dot="8" aria-label="Ver As Crianças que Salvaram o Rio"></button>
               </div>
-              <button class="frame-next" type="button" data-slide-next aria-label="Próximo destaque">↗</button>
+              <div class="frame-arrows" role="group" aria-label="Navegar pelos destaques">
+                <button class="frame-arrow" type="button" data-slide-prev aria-label="Destaque anterior">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14 6-6 6 6 6" /></svg>
+                </button>
+                <button class="frame-arrow" type="button" data-slide-next aria-label="Próximo destaque">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10 6 6 6-6 6" /></svg>
+                </button>
+              </div>
             </div>
           </div>
           <span class="hero-sticker sticker-one" aria-hidden="true">2D</span>
@@ -518,6 +525,6 @@
       </div>
     </dialog>
 
-    <script src="./script.js?v=20261119-2"></script>
+    <script src="./script.js?v=20261120-swipe"></script>
   </body>
 </html>
