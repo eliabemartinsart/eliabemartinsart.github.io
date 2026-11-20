@@ -37,3 +37,11 @@ O painel usa visit-report, que valida o JWT no Auth e exige a consulta autorizad
 O cache privado reutiliza resultados por 7 dias, tenta falhas novamente após 6 horas e limita novas consultas a 500 por dia UTC, abaixo da franquia publicada de 1.000/dia. Há até 5 consultas simultâneas e timeout de 2,5 segundos por consulta; nenhuma assinatura foi criada. A disponibilidade e a precisão dependem do provedor gratuito. Campos ausentes aparecem como Não disponível.
 
 As tabelas de cache e quota têm RLS, sem acesso direto de clientes; somente funções internas de serviço podem alterá-las. A limpeza diária remove IPs do cache quando já não há visitas válidas em 30 dias. A interface e o rodapé público informam a estimativa e o uso do provedor. Baseado na documentação oficial https://ipwhois.io/documentation e política https://ipwhois.io/privacy .
+
+## Aparelho e sinais de VPN/proxy
+
+O coletor classifica somente tipo de aparelho, sistema operacional e família do navegador a partir do User-Agent recebido. O texto original, versões completas e modelos não são armazenados. Esses valores podem ser omitidos ou falsificados e não identificam uma pessoa ou um aparelho específico. Visitas antigas permanecem sem esses dados.
+
+visit-report compara os IPs já autorizados com listas públicas de VPNs IPv4/IPv6 da X4BNet, saídas Tor do Tor Project e IPs de saída de proxies da monosans/proxy-list. Nenhum IP do visitante é enviado a esses mantenedores: apenas os arquivos públicos são baixados. Não usa a lista genérica de datacenters como se fosse prova de VPN. Dados e fontes podem ter falsos positivos ou cobertura incompleta.
+
+Listas são mantidas em memória por até uma hora, com tentativa após um minuto em falhas; resultados por IP têm timestamp e cache privado de uma hora. Se uma fonte falhar, seu sinal será nulo, sem converter ausência de consulta em falso. A interface distingue possível VPN/proxy, saída Tor listada, sem indícios nas listas, verificação parcial e não verificado. Não há bloqueio automático de visitas. O cache é apagado com a retenção das visitas em 30 dias. Créditos e licenças: backend/NETWORK-SOURCES.md.

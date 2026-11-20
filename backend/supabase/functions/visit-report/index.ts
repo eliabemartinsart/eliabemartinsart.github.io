@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.119.2';
 import { enrichReport } from './geo.ts';
+import { enrichNetworks } from './network.ts';
 const publicKey = 'sb_publishable_KrEo1iWfTSU5aJ5YUzn99w_tFL80WMV';
 const origin = 'https://eliabemartinsart.github.io';
 const headers = { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'POST,OPTIONS',
@@ -31,7 +32,7 @@ Deno.serve(async (request: Request) => {
     if (first.error) return response(403);
     // IPs come only from the authorized database report, never from a client-supplied lookup list.
     const server = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false, autoRefreshToken: false } });
-    await enrichReport(server, first.data.visits);
+    await Promise.allSettled([enrichReport(server, first.data.visits), enrichNetworks(server, first.data.visits)]);
     const final = await client.rpc('admin_visit_report', params);
     if (final.error) return response(403);
     return response(200, final.data);

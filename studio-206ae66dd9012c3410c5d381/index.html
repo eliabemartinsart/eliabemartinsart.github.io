@@ -8,8 +8,8 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self';style-src 'self';img-src 'self' data:;connect-src https://qgrzyxwbrufhtkrealep.supabase.co;object-src 'none';base-uri 'none';form-action 'none';upgrade-insecure-requests">
   <title>Acessos · Eliabe</title>
   <link rel="icon" href="../assets/logos/eliabe.png">
-  <link rel="stylesheet" href="./admin.css?v=20261120-geo">
-  <script type="module" src="./app.js?v=20261120-geo"></script>
+  <link rel="stylesheet" href="./admin.css?v=20261120-signals">
+  <script type="module" src="./app.js?v=20261120-signals"></script>
 </head>
 <body>
   <header><a href="../" aria-label="Voltar ao portfólio"><img src="../assets/logos/eliabe.png" width="64" height="64" alt="Eliabe"></a><span>ÁREA PRIVADA</span></header>
@@ -25,9 +25,9 @@
       <div class="dashboard-heading"><div><p class="eyebrow">SEU PORTFÓLIO</p><h1>Acessos ao site</h1></div><button id="logout" class="secondary">Sair</button></div>
       <div class="toolbar"><label for="period">Período <select id="period"><option value="1">Últimas 24 horas</option><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option></select></label><button id="refresh" class="secondary">Atualizar</button></div>
       <div class="metrics"><article class="card"><span>Acessos registrados</span><strong id="total">—</strong></article><article class="card"><span>IPs distintos</span><strong id="unique">—</strong></article><article class="card"><span>Último acesso</span><strong id="latest" class="date">—</strong></article></div>
-      <div class="card table-card"><div class="table-heading"><h2>Registro de visitas</h2><span>Horário de Brasília</span></div><div class="table-scroll"><table><thead><tr><th scope="col">Data e horário</th><th scope="col">Endereço IP</th><th scope="col">Cidade</th><th scope="col">Estado / região</th><th scope="col">País</th></tr></thead><tbody id="visits"></tbody></table></div><p id="empty" class="muted" hidden>Nenhum acesso registrado neste período.</p><div class="pagination"><button id="previous" class="secondary" disabled>Mais recentes</button><button id="next" class="secondary" disabled>Mais antigos</button></div></div>
+      <div class="card table-card"><div class="table-heading"><h2>Registro de visitas</h2><span>Horário de Brasília</span></div><p class="table-hint">No celular, deslize a tabela para ver todas as informações.</p><div class="table-scroll"><table><thead><tr><th scope="col">Data e horário</th><th scope="col">Endereço IP</th><th scope="col">Cidade</th><th scope="col">Estado / região</th><th scope="col">País</th><th scope="col">VPN / proxy</th><th scope="col">Aparelho</th></tr></thead><tbody id="visits"></tbody></table></div><p id="empty" class="muted" hidden>Nenhum acesso registrado neste período.</p><div class="pagination"><button id="previous" class="secondary" disabled>Mais recentes</button><button id="next" class="secondary" disabled>Mais antigos</button></div></div>
       <p id="data-status" role="status" aria-live="polite"></p>
-      <p class="footnote">Uma visita é um acesso registrado. Um mesmo IP pode ser compartilhado por várias pessoas. Registros mantidos por até 30 dias. Cidade, estado e país são estimados pelo IP e podem indicar a região da operadora ou de uma VPN. Não representam a localização exata. Fonte: <a href="https://ipwhois.io" target="_blank" rel="noopener noreferrer">IPWHOIS.io</a>.</p>
+      <p class="footnote">Uma visita é um acesso registrado. Um mesmo IP pode ser compartilhado por várias pessoas. Registros mantidos por até 30 dias. Cidade, estado e país são estimados pelo IP e podem indicar a região da operadora ou de uma VPN. Não representam a localização exata. VPN/proxy indica apenas correspondência em listas públicas; ausência de indícios não garante uma conexão direta. Aparelho, sistema e navegador são estimados pela identificação enviada pelo navegador. Registros antigos podem não ter esse dado. Fonte: <a href="https://ipwhois.io" target="_blank" rel="noopener noreferrer">IPWHOIS.io</a>.</p>
     </section>
   </main>
 </body>

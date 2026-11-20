@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import config from '../public-config.js';
+import { networkLabel, deviceLabel } from './visit-labels.js';
 if (window.self !== window.top) { document.body.replaceChildren(document.createTextNode('Abra o painel diretamente no navegador.')); throw new Error('Framed access is disabled'); }
 const $ = (id) => document.getElementById(id);
 let client, cursor = null, nextCursor = null, history = [], loading = false, generation = 0;
@@ -33,6 +34,15 @@ async function loadVisits() {
     const row = document.createElement('tr'); const date = document.createElement('td'); const ip = document.createElement('td');
     date.textContent = format.format(new Date(visit.at)); ip.textContent = visit.ip; row.append(date, ip);
     for (const field of ['city','region','country']) { const cell = document.createElement('td'); cell.textContent = visit[field] || 'Não disponível'; row.append(cell); }
+    const network = networkLabel(visit), device = deviceLabel(visit);
+    const networkCell = document.createElement('td'), badge = document.createElement('span');
+    badge.className = network.suspected ? 'network-badge suspected' : 'network-badge'; badge.textContent = network.label;
+    badge.title = 'Comparação com listas públicas. Ausência de indícios não garante ausência de VPN ou proxy.';
+    networkCell.append(badge);
+    if (visit.network_checked_at) { const checked = document.createElement('small'); checked.textContent = `Verificado em ${format.format(new Date(visit.network_checked_at))}`; networkCell.append(checked); }
+    const deviceCell = document.createElement('td'), deviceName = document.createElement('span'); deviceName.textContent = device.label; deviceCell.append(deviceName);
+    if (device.detail) { const detail = document.createElement('small'); detail.textContent = device.detail; deviceCell.append(detail); }
+    row.append(networkCell, deviceCell);
     fragment.append(row);
   }
   $('visits').replaceChildren(fragment); $('empty').hidden = data.visits.length !== 0;
