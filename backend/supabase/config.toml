@@ -1,0 +1,16 @@
+project_id = "eliabe-portfolio-admin"
+
+[auth]
+enable_signup = false
+enable_anonymous_sign_ins = false
+minimum_password_length = 16
+jwt_expiry = 600
+
+[auth.mfa]
+max_enrolled_factors = 4
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[functions.collect-visit]
+verify_jwt = false
