@@ -1,1 +1,1 @@
-import '../backend/tooling/admin.js?v=20261120-complete2';
+import '../backend/tooling/admin.js?v=20261122-self1';
