@@ -19,10 +19,25 @@ async function loadVisits(){const request=generation;$('data-status').textConten
  const network=networkLabel(visit),device=deviceLabel(visit),networkCell=cell(''),badge=document.createElement('span');badge.className=network.suspected?'network-badge suspected':'network-badge';badge.textContent=network.label;badge.title='Comparação com listas públicas; ausência de indícios não garante ausência de VPN.';networkCell.append(badge);if(visit.network_checked_at){const small=document.createElement('small');small.textContent='Verificado em '+format.format(new Date(visit.network_checked_at));networkCell.append(small)}const deviceCell=cell(device.label);if(device.detail){const small=document.createElement('small');small.textContent=device.detail;deviceCell.append(small)}row.append(networkCell,deviceCell,cell(visit.source||'Não registrado'),cell(visit.active_seconds===null?'Não registrado':duration(visit.active_seconds)));fragment.append(row)}
  $('visits').replaceChildren(fragment);$('empty').hidden=data.visits.length!==0;nextCursor=data.next_cursor;$('previous').disabled=history.length===0;$('next').disabled=nextCursor===null;renderAnalytics(data);$('export-summary').disabled=false;$('export-visits').disabled=false;$('data-status').textContent='Atualizado em '+format.format(new Date())+'.';
 }
-$('login-form').addEventListener('submit',async event=>{event.preventDefault();if(!client||loading)return;loading=true;$('login-fields').disabled=true;status('Verificando acesso…');try{const{error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;generation++;await loadVisits();$('auth-view').hidden=true;$('dashboard').hidden=false;tab('statistics')}catch(error){await client.auth.signOut({scope:'local'});clean();status(error?.status===429?'Muitas tentativas. Aguarde antes de tentar novamente.':'Não foi possível entrar. Confira os dados ou tente novamente mais tarde.')}finally{$('password').value='';loading=false;$('login-fields').disabled=false}});
+$('login-form').addEventListener('submit',async event=>{event.preventDefault();if(!client||loading)return;loading=true;$('login-fields').disabled=true;status('Verificando acesso…');try{const{error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;ignoreOwnVisits();generation++;await loadVisits();$('auth-view').hidden=true;$('dashboard').hidden=false;tab('statistics')}catch(error){await client.auth.signOut({scope:'local'});clean();status(error?.status===429?'Muitas tentativas. Aguarde antes de tentar novamente.':'Não foi possível entrar. Confira os dados ou tente novamente mais tarde.')}finally{$('password').value='';loading=false;$('login-fields').disabled=false}});
 async function refresh(){if(loading)return;loading=true;try{await loadVisits()}catch{await leave();status('Sessão expirada ou acesso indisponível. Entre novamente.')}finally{loading=false}}
 $('period').addEventListener('change',()=>{cursor=null;history=[];refresh()});$('refresh').addEventListener('click',refresh);$('next').addEventListener('click',()=>{if(loading||nextCursor===null)return;history.push(cursor);cursor=nextCursor;refresh()});$('previous').addEventListener('click',()=>{if(loading||!history.length)return;cursor=history.pop();refresh()});$('logout').addEventListener('click',leave);
-$('exclude-self').checked=isExcluded();$('exclude-self').addEventListener('change',()=>{try{setExcluded($('exclude-self').checked);$('exclude-status').textContent=$('exclude-self').checked?'Seus próximos acessos neste navegador serão ignorados.':'Os próximos acessos neste navegador voltarão a ser contabilizados.'}catch{$('exclude-self').checked=isExcluded();$('exclude-status').textContent='O navegador não permitiu salvar essa preferência.'}});
+function showOwnVisitStatus(message){
+ const excluded=isExcluded();$('exclude-self').checked=excluded;
+ const text=message||(excluded?'Este navegador é seu: seus próximos acessos ao portfólio serão ignorados.':'Suas visitas neste navegador estão sendo contabilizadas.');
+ $('exclude-status').textContent=text;$('self-visit-status').textContent=text;
+}
+function ignoreOwnVisits(){
+ try{setExcluded(true);showOwnVisitStatus()}
+ catch{showOwnVisitStatus('Não foi possível salvar a identificação deste navegador. Seus acessos ao portfólio poderão aparecer nas estatísticas.')}
+}
+showOwnVisitStatus();
+$('exclude-self').addEventListener('change',()=>{
+ try{setExcluded($('exclude-self').checked);showOwnVisitStatus()}
+ catch{showOwnVisitStatus('O navegador não permitiu salvar essa preferência.')}
+});
+window.addEventListener('storage',event=>{if(event.key==='eliabe.analytics.exclude'||event.key===null)showOwnVisitStatus()});
+
 function campaign(){const url=new URL('https://eliabemartinsart.github.io/');url.searchParams.set('utm_source',$('campaign-source').value);url.searchParams.set('utm_medium','portfolio');$('campaign-link').value=url.href}
 $('campaign-source').addEventListener('change',campaign);$('copy-campaign').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('campaign-link').value);$('campaign-status').textContent='Link copiado.'}catch{$('campaign-link').select();$('campaign-status').textContent='Selecione e copie o link acima.'}});campaign();
 $('export-summary').addEventListener('click',()=>{if(currentReport&&!loading)downloadCsv('portfolio-resumo-'+$('period').value+'dias.csv',summaryRows(currentReport))});
