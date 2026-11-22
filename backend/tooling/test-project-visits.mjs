@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile,readdir} from 'node:fs/promises';
 import {PGlite} from '@electric-sql/pglite';
 const db=new PGlite();
 const owner='00000000-0000-4000-8000-000000000001',other='00000000-0000-4000-8000-000000000002',session='00000000-0000-4000-8000-000000000003';
@@ -12,6 +12,8 @@ await db.exec(`create role anon;create role authenticated;create role service_ro
  create table storage.objects(bucket_id text,name text);alter table storage.objects enable row level security;
  create function storage.foldername(text)returns text[] language sql as $$select string_to_array($1,'/')$$;`);
 for(const file of ['20261120181601_admin_visit_privacy.sql','20261120185437_admin_password_access.sql','20261120190711_admin_ip_geolocation.sql','20261120203522_visitor_device_network_signals.sql','20261120210238_portfolio_editor_analytics.sql','20261122180953_project_visit_details.sql'])await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
+const activityMigration=(await readdir(new URL('../supabase/migrations/',import.meta.url))).find(name=>name.endsWith('_activity_visit_details.sql'));
+await db.exec(await readFile(new URL('../supabase/migrations/'+activityMigration,import.meta.url),'utf8'));
 await db.query('insert into portfolio_private.site_admins values($1)',[owner]);
 await db.query('insert into auth.sessions values($1,$2,$3,null)',[session,owner,'aal1']);
 async function visit(ip,project,seconds=null,age=0){
@@ -45,6 +47,33 @@ assert.equal(empty.total_visits,0);assert.deepEqual(empty.visits,[]);assert.equa
 await assert.rejects(report(365),e=>e.code==='22023');await assert.rejects(report(30,0),e=>e.code==='22023');
 await assert.rejects(db.query("select public.admin_project_visits('../bad')"),e=>e.code==='22023');
 await assert.rejects(db.query('select * from portfolio_private.site_events'),e=>e.code==='42501');
+await db.exec('reset role');
+const firstId=(await db.query('select min(id)as id from portfolio_private.site_visits')).rows[0].id;
+const secondId=(await db.query('select id from portfolio_private.site_visits order by id limit 1 offset 1')).rows[0].id;
+async function event(id,kind,subject,seconds=0){await db.query("insert into portfolio_private.site_events(event_id,visit_id,kind,subject,seconds)values(gen_random_uuid(),$1,$2,$3,$4)",[id,kind,subject,seconds])}
+await event(firstId,'section_view','sobre');await event(firstId,'engagement','section:sobre',11);await event(firstId,'contact_click','whatsapp');
+for(let i=0;i<55;i++)await event(firstId,'engagement','section:sobre',1);
+await event(secondId,'section_view','contato');await event(secondId,'engagement','section:contato',4);await event(secondId,'contact_click','email');
+const noEvents=(await db.query("insert into portfolio_private.site_visits(ip,device_type,os,browser,source)values('198.51.100.99','computer','Linux','Firefox','Google')returning id")).rows[0].id;
+await role('authenticated');
+const activity=async(kind,subject='',days=30,before=null)=>(await db.query('select public.admin_activity_visits($1,$2,$3,$4)as data',[kind,subject,days,before])).rows[0].data;
+const timeline=async(id,cursor=null)=>(await db.query('select public.admin_visit_events($1,30,$2)as data',[id,cursor])).rows[0].data;
+const about=await activity('section','sobre');assert.equal(about.total_visits,1);assert.equal(about.views,1);assert.equal(about.opens,0);assert.equal(about.active_seconds,66);assert.equal(about.visits[0].visit_id,firstId);
+const contact=await activity('contact','whatsapp');assert.equal(contact.total_visits,1);assert.equal(contact.clicks,1);assert.equal(contact.active_seconds,null);assert.equal(contact.views,0);
+assert.equal((await activity('contact','all')).clicks,2);
+assert.equal((await activity('source','Instagram')).total_visits,54);
+assert.equal((await activity('source','Google')).total_visits,1);assert.equal((await activity('source','Google')).active_seconds,null);
+const date=(await db.query("select to_char(now()at time zone 'America/Fortaleza','YYYY-MM-DD')as day,extract(hour from(now()at time zone 'America/Fortaleza'))::integer as hour")).rows[0];
+assert.equal((await activity('day',date.day)).total_visits,54);assert.equal((await activity('hour',String(date.hour))).total_visits,55);
+const all=await activity('all');assert.equal(all.total_visits,55);assert.equal(all.active_seconds,111);assert.equal(all.visits.length,50);
+const allNext=await activity('all','',30,all.next_cursor);assert.equal(allNext.visits.length,5);assert.ok(allNext.visits.every(v=>!all.visits.some(p=>p.visit_id===v.visit_id)));
+assert.equal((await activity('visit',String(firstId))).total_visits,1);
+const events=await timeline(firstId);assert.equal(events.total_events,60);assert.equal(events.events.length,50);assert.equal(events.visit.ip,'198.51.100.1');
+assert.equal((await timeline(firstId,events.next_cursor)).events.length,10);
+assert.equal((await timeline(noEvents)).events.length,0);assert.equal((await timeline(noEvents)).visit.os,'Linux');
+await assert.rejects(activity('section','invalid'),e=>e.code==='22023');await assert.rejects(activity('day','2026-02-30'),e=>e.code==='22023');await assert.rejects(activity('hour','24'),e=>e.code==='22023');await assert.rejects(activity('visit','x'),e=>e.code==='22023');await assert.rejects(activity('unknown'),e=>e.code==='22023');
+await role('authenticated',other);await assert.rejects(activity('all'),e=>e.code==='42501');await assert.rejects(timeline(firstId),e=>e.code==='42501');
+await role('authenticated',owner,'00000000-0000-4000-8000-000000000099');await assert.rejects(activity('all'),e=>e.code==='42501');await assert.rejects(timeline(firstId),e=>e.code==='42501');
+await role('anon');await assert.rejects(activity('all'),e=>e.code==='42501');await assert.rejects(timeline(firstId),e=>e.code==='42501');
 await db.close();
-console.log('PASS: historical project/IP/time joins, shared IP visits, IPv6, missing measurements, per-project isolation, period filtering, pagination, owner session checks and anonymous denial.');
-
+console.log('PASS: historical project/section/contact/source/day/hour/visit details, per-item times, no inferred contact duration, empty visits, timelines, pagination, filter validation and anonymous/non-owner/revoked-session denial.');

@@ -1,1 +1,1 @@
-import '../backend/tooling/admin.js?v=20261122-project1';
+import '../backend/tooling/admin.js?v=20261122-activity1';
