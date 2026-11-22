@@ -26,7 +26,7 @@ export function visitTimeline(getClient,isActive){
    if(error||!Array.isArray(data?.events))throw Error('Unavailable');
    report=data;next=data.next_cursor;
    const v=data.visit;
-   $('visit-timeline-summary').textContent=v?`${v.ip} · Visita ${v.visit_id} · ${deviceLabel(v).label} · ${v.os==='unknown'?'Sistema não identificado':v.os} · ${v.browser==='unknown'?'Navegador não identificado':v.browser} · ${v.source||'Origem não registrada'} · ${data.total_events} eventos no período.`:'Visita indisponível neste período.';
+   $('visit-timeline-summary').textContent=v?`${v.visitor_name||'Não identificado (antigo)'} · ${v.ip} · Visita ${v.visit_id} · ${deviceLabel(v).label} · ${v.os==='unknown'?'Sistema não identificado':v.os} · ${v.browser==='unknown'?'Navegador não identificado':v.browser} · ${v.source||'Origem não registrada'} · ${data.total_events} eventos no período.`:'Visita indisponível neste período.';
    const fragment=document.createDocumentFragment();
    for(const e of data.events){const row=document.createElement('tr');row.append(cell(format.format(new Date(e.at))),cell(kinds[e.kind]||e.kind),cell(subject(e)),cell(seconds(e)));fragment.append(row)}
    $('visit-timeline-rows').replaceChildren(fragment);$('visit-timeline-empty').hidden=data.events.length!==0;
