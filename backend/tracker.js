@@ -1,5 +1,8 @@
 import{SOURCE_LABELS,SECTION_IDS}from'./public-model.js?v=20261120-complete2';
 export const EXCLUDE_KEY='eliabe.analytics.exclude';
+const VISITOR_KEY='eliabe.analytics.visitor';
+export function anonymousVisitorId(storage){try{const store=storage||globalThis.localStorage;const existing=store.getItem(VISITOR_KEY);if(existing&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(existing))return existing;const id=crypto.randomUUID();store.setItem(VISITOR_KEY,id);return id}catch{return null}}
+
 export function isExcluded(storage){try{return(storage||globalThis.localStorage)?.getItem(EXCLUDE_KEY)==='1'}catch{return false}}
 export function setExcluded(value,storage){(storage||globalThis.localStorage).setItem(EXCLUDE_KEY,value?'1':'0')}
 export function sourceLabel(referrer,href){const u=new URL(href),campaign=(u.searchParams.get('utm_source')||'').toLowerCase(),map={instagram:'Instagram',google:'Google',bing:'Bing',whatsapp:'WhatsApp',facebook:'Facebook',youtube:'YouTube',linkedin:'LinkedIn',tiktok:'TikTok'};if(campaign)return map[campaign]||'Outro link de campanha';if(!referrer)return SOURCE_LABELS[0];try{const h=new URL(referrer).hostname.toLowerCase();if(h===u.hostname)return SOURCE_LABELS[0];if(/^(?:[a-z0-9-]+\.)*google\.(?:com|[a-z]{2}|(?:com|co)\.[a-z]{2})$/.test(h))return'Google';for(const[d,label]of[['instagram.com','Instagram'],['bing.com','Bing'],['whatsapp.com','WhatsApp'],['wa.me','WhatsApp'],['facebook.com','Facebook'],['fb.com','Facebook'],['youtube.com','YouTube'],['youtu.be','YouTube'],['linkedin.com','LinkedIn'],['tiktok.com','TikTok']])if(h===d||h.endsWith('.'+d))return label;return'Outro site'}catch{return SOURCE_LABELS[0]}}
@@ -24,7 +27,7 @@ export function startAnalytics(config){
  const seen=new Set(),ratios=new Map();let observer;
  if('IntersectionObserver'in window){observer=new IntersectionObserver(entries=>{for(const e of entries){ratios.set(e.target.id,e.isIntersecting?e.intersectionRatio:0);if(e.isIntersecting&&e.intersectionRatio>=.25&&!seen.has(e.target.id)){seen.add(e.target.id);enqueue('section_view',e.target.id)}}const top=[...ratios].sort((a,b)=>b[1]-a[1])[0];if(top?.[1]>0&&top[0]!==visibleSection){visibleSection=top[0];if(!document.querySelector('#project-dialog')?.open)contextTo('section:'+visibleSection)}},{threshold:[0,.25,.5,.75,1]});for(const id of SECTION_IDS){const s=document.getElementById(id);if(s)observer.observe(s)}}
  const interval=setInterval(()=>{tick();commit();flush()},15000),onHide=()=>{tick();commit();active=false;flush(true)};window.addEventListener('pagehide',onHide);
- post('collect-visit',{source:sourceLabel(document.referrer,location.href)}).then(r=>r.ok&&r.status!==204?r.json():null).then(data=>{if(typeof data?.token==='string'){token=data.token;flush()}}).catch(()=>{});
+ post('collect-visit',{source:sourceLabel(document.referrer,location.href),visitor_id:anonymousVisitorId()}).then(r=>r.ok&&r.status!==204?r.json():null).then(data=>{if(typeof data?.token==='string'){token=data.token;flush()}}).catch(()=>{});
  return{stop(){stopped=true;clearInterval(interval);observer?.disconnect();queue=[];for(const n of['pointerdown','keydown','scroll'])document.removeEventListener(n,onActivity);document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('focus',onVisibility);window.removeEventListener('blur',onVisibility);window.removeEventListener('pagehide',onHide)}};
 }
 
