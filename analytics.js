@@ -1,2 +1,2 @@
-import config from './backend/public-config.js?v=20261120-complete2';import{startAnalytics}from'./backend/tracker.js?v=20261120-complete2';
+import config from './backend/public-config.js?v=20261120-complete2';import{startAnalytics}from'./backend/tracker.js?v=20261122-visitors1';
 if(location.hostname==='eliabemartinsart.github.io'&&(location.pathname==='/'||location.pathname==='/index.html')){const start=()=>{try{startAnalytics(config)}catch{}};if(document.prerendering)document.addEventListener('prerenderingchange',start,{once:true});else start()}
