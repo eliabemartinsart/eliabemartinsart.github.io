@@ -23,7 +23,7 @@ export function projectVisits(getClient,isActive,onVisit){
   const fragment=document.createDocumentFragment();
   for(const v of data.visits){
    const row=document.createElement('tr'),device=deviceLabel(v),network=networkLabel(v);
-   row.append(cell(time(v.first_at)),cell(v.ip));
+   row.append(cell(time(v.first_at)),cell(v.visitor_name||'Não identificado (antigo)'),cell(v.ip));
    for(const key of ['city','region','country'])row.append(cell(v[key]||'Não disponível'));
    row.append(cell(device.label),cell(v.os==='unknown'?'Não disponível':v.os),cell(v.browser==='unknown'?'Não disponível':v.browser),cell(v.source||'Não registrado'));
    const net=cell(network.label);net.title='Sinais já disponíveis; ausência de indícios não comprova ausência de VPN.';
@@ -61,7 +61,7 @@ export function projectVisits(getClient,isActive,onVisit){
  $('project-access-export').addEventListener('click',async()=>{
   if(busy||!selected||!report)return;
   const request=++version,owner=getClient(),project=selected;busy=true;controls();
-  const rows=[['Filtro','Visita','Primeiro registro (Brasília)','Último registro (Brasília)','IP','Cidade','Estado / região','País','Aparelho','Sistema','Navegador','Origem','VPN / proxy','Visualizações de seção','Aberturas de projeto','Cliques','Tempo ativo registrado (segundos)']];
+  const rows=[['Filtro','Visita','Primeiro registro (Brasília)','Último registro (Brasília)','Visitante','Identificador anônimo','IP','Cidade','Estado / região','País','Aparelho','Sistema','Navegador','Origem','VPN / proxy','Visualizações de seção','Aberturas de projeto','Cliques','Tempo ativo registrado (segundos)']];
   let before=null;
   try{
    for(let page=0;page<201;page++){
@@ -69,7 +69,7 @@ export function projectVisits(getClient,isActive,onVisit){
     if(!valid(request,owner))return;
     if(error||!Array.isArray(data?.visits))throw Error('Não foi possível exportar. Tente novamente.');
     if(page===200&&data.visits.length)throw Error('Selecione um período menor para exportar este volume de acessos.');
-    for(const v of data.visits)rows.push([project.title,v.visit_id,time(v.first_at),time(v.last_at),v.ip,v.city,v.region,v.country,deviceLabel(v).label,v.os,v.browser,v.source,networkLabel(v).label,v.views||0,v.opens,v.clicks,v.active_seconds]);
+    for(const v of data.visits)rows.push([project.title,v.visit_id,time(v.first_at),time(v.last_at),v.visitor_name||'Não identificado (antigo)',v.visitor_id||'',v.ip,v.city,v.region,v.country,deviceLabel(v).label,v.os,v.browser,v.source,networkLabel(v).label,v.views||0,v.opens,v.clicks,v.active_seconds]);
     before=data.next_cursor;if(before===null)break;
    }
    if(valid(request,owner)){downloadCsv(`portfolio-${project.kind}-${project.id||'todos'}-acessos-${days}dias.csv`,rows);$('project-access-status').textContent=`CSV preparado com ${rows.length-1} visitas registradas.`}
