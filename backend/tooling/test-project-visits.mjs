@@ -11,7 +11,7 @@ await db.exec(`create role anon;create role authenticated;create role service_ro
  create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
  create table storage.objects(bucket_id text,name text);alter table storage.objects enable row level security;
  create function storage.foldername(text)returns text[] language sql as $$select string_to_array($1,'/')$$;`);
-for(const file of ['20261120181601_admin_visit_privacy.sql','20261120185437_admin_password_access.sql','20261120190711_admin_ip_geolocation.sql','20261120203522_visitor_device_network_signals.sql','20261120210238_portfolio_editor_analytics.sql','20261122180639_project_visit_details.sql'])await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
+for(const file of ['20261120181601_admin_visit_privacy.sql','20261120185437_admin_password_access.sql','20261120190711_admin_ip_geolocation.sql','20261120203522_visitor_device_network_signals.sql','20261120210238_portfolio_editor_analytics.sql','20261122180953_project_visit_details.sql'])await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
 await db.query('insert into portfolio_private.site_admins values($1)',[owner]);
 await db.query('insert into auth.sessions values($1,$2,$3,null)',[session,owner,'aal1']);
 async function visit(ip,project,seconds=null,age=0){
@@ -47,3 +47,4 @@ await assert.rejects(db.query("select public.admin_project_visits('../bad')"),e=
 await assert.rejects(db.query('select * from portfolio_private.site_events'),e=>e.code==='42501');
 await db.close();
 console.log('PASS: historical project/IP/time joins, shared IP visits, IPv6, missing measurements, per-project isolation, period filtering, pagination, owner session checks and anonymous denial.');
+
