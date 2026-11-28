@@ -20,7 +20,7 @@
       type="image/png"
       href="./assets/logos/eliabe.png"
     />
-    <link rel="stylesheet" href="./styles.css?v=20261120-complete" />
+    <link rel="stylesheet" href="./styles.css?v=20261128-illustrations" />
   </head>
   <body>
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -43,6 +43,7 @@
 
       <nav class="main-nav" id="main-nav" aria-label="Navegação principal">
         <a href="#projetos">Projetos</a>
+        <a href="#ilustracoes">Ilustrações</a>
         <a href="#sobre">Sobre</a>
         <a href="#ferramentas">Ferramentas</a>
         <a href="#reconhecimentos">Reconhecimentos</a>
@@ -240,6 +241,46 @@
             <span class="project-info"><small>Ilustração editorial · 2025</small><strong>As Crianças que Salvaram o Rio</strong><em>Elis Nunes &amp; Maitê Nunes</em></span>
           </button>
         </div>
+      </section>
+
+      <section class="section illustration-section" id="ilustracoes" aria-labelledby="illustrations-title">
+        <div class="section-heading">
+          <h2 id="illustrations-title">Ilustrações</h2>
+        </div>
+        <article class="illustration-project" aria-labelledby="pessoas-que-eu-queria-conhecer">
+          <h3 id="pessoas-que-eu-queria-conhecer">Pessoas que Eu Queria Conhecer</h3>
+          <div class="illustration-grid">
+            <a href="./assets/illustrations/pessoas-que-eu-queria-conhecer/model(2).png" aria-label="Ampliar imagem: Três personagens em vista frontal, com roupas em azul, marrom e vermelho">
+              <img src="./assets/illustrations/pessoas-que-eu-queria-conhecer/model(2).webp" alt="Três personagens em vista frontal, com roupas em azul, marrom e vermelho" width="768" height="432" loading="lazy" decoding="async" />
+            </a>
+            <a href="./assets/illustrations/pessoas-que-eu-queria-conhecer/Model_Sheet_Jessy_4K_Transparente(1).png" aria-label="Ampliar imagem: Folha de modelo de Jessy com cinco vistas da personagem" class="illustration-transparent">
+              <img src="./assets/illustrations/pessoas-que-eu-queria-conhecer/Model_Sheet_Jessy_4K_Transparente(1).webp" alt="Folha de modelo de Jessy com cinco vistas da personagem" width="768" height="432" loading="lazy" decoding="async" />
+            </a>
+            <a href="./assets/illustrations/pessoas-que-eu-queria-conhecer/Illustration8(2).png" aria-label="Ampliar imagem: Três personagens com roupas em azul, vermelho e marrom sobre fundo claro">
+              <img src="./assets/illustrations/pessoas-que-eu-queria-conhecer/Illustration8(2).webp" alt="Três personagens com roupas em azul, vermelho e marrom sobre fundo claro" width="768" height="432" loading="lazy" decoding="async" />
+            </a>
+            <a href="./assets/illustrations/pessoas-que-eu-queria-conhecer/fcfhugy.png" aria-label="Ampliar imagem: Três personagens em vista frontal com traços simplificados">
+              <img src="./assets/illustrations/pessoas-que-eu-queria-conhecer/fcfhugy.webp" alt="Três personagens em vista frontal com traços simplificados" width="768" height="432" loading="lazy" decoding="async" />
+            </a>
+          </div>
+        </article>
+        <article class="illustration-project" aria-labelledby="quando-a-chuva-voltar">
+          <h3 id="quando-a-chuva-voltar">Quando a Chuva Voltar</h3>
+          <div class="illustration-grid">
+            <a href="./assets/illustrations/quando-a-chuva-voltar/4(1).png" aria-label="Ampliar imagem: Cinco vistas de um senhor de avental verde">
+              <img src="./assets/illustrations/quando-a-chuva-voltar/4(1).webp" alt="Cinco vistas de um senhor de avental verde" width="768" height="432" loading="lazy" decoding="async" />
+            </a>
+            <a href="./assets/illustrations/quando-a-chuva-voltar/6.png" aria-label="Ampliar imagem: Cinco vistas de uma menina com vestido verde">
+              <img src="./assets/illustrations/quando-a-chuva-voltar/6.webp" alt="Cinco vistas de uma menina com vestido verde" width="768" height="432" loading="lazy" decoding="async" />
+            </a>
+            <a href="./assets/illustrations/quando-a-chuva-voltar/8.png" aria-label="Ampliar imagem: Cinco vistas de uma senhora com vestido marrom">
+              <img src="./assets/illustrations/quando-a-chuva-voltar/8.webp" alt="Cinco vistas de uma senhora com vestido marrom" width="768" height="432" loading="lazy" decoding="async" />
+            </a>
+            <a href="./assets/illustrations/quando-a-chuva-voltar/2(1).png" aria-label="Ampliar imagem: Um senhor trabalha à mesa ao lado de um cartão com a sinopse">
+              <img src="./assets/illustrations/quando-a-chuva-voltar/2(1).webp" alt="Um senhor trabalha à mesa ao lado de um cartão com a sinopse" width="768" height="432" loading="lazy" decoding="async" />
+            </a>
+          </div>
+        </article>
       </section>
 
       <section class="section about-section" id="sobre" aria-labelledby="about-title">
@@ -510,6 +551,22 @@
       </div>
     </dialog>
 
+    <dialog class="illustration-dialog" aria-labelledby="illustration-viewer-title">
+      <div class="illustration-viewer">
+        <header class="illustration-viewer-bar">
+          <h2 id="illustration-viewer-title"></h2>
+          <button type="button" data-illustration-close aria-label="Fechar imagem" autofocus>×</button>
+        </header>
+        <div class="illustration-stage"><img alt="" /></div>
+        <div class="illustration-viewer-bar illustration-controls">
+          <button type="button" data-illustration-step="-1" aria-label="Imagem anterior">←</button>
+          <span data-illustration-count role="status"></span>
+          <button type="button" data-illustration-step="1" aria-label="Próxima imagem">→</button>
+        </div>
+      </div>
+    </dialog>
+
+    <script type="module" src="./illustrations.js?v=1"></script>
     <script type="module" src="./portfolio.js?v=20261120-complete2"></script>
     <script type="module" src="./analytics.js?v=20261122-visitors1"></script>
   </body>

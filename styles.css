@@ -2601,3 +2601,127 @@ img {
 .privacy-note { display: block; max-width: 32rem; margin-top: 10px; font-size: .875rem; line-height: 1.6; color: var(--muted); }
 
 .hero.has-no-highlights .hero-copy{grid-column:1/-1;max-width:900px}[hidden]{display:none!important}
+
+.illustration-section .section-heading {
+  margin-bottom: clamp(1.75rem, 4vw, 3rem);
+}
+
+.illustration-project + .illustration-project {
+  margin-top: clamp(2.5rem, 6vw, 5rem);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--line);
+}
+
+.illustration-project h3 {
+  margin: 0 0 1.15rem;
+  font: 700 clamp(1.35rem, 3vw, 2.25rem)/1.15 "Syne", sans-serif;
+}
+
+.illustration-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.6rem, 1.5vw, 1rem);
+}
+
+.illustration-grid a {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: var(--ink-soft);
+  cursor: zoom-in;
+}
+
+.illustration-grid a:hover,
+.illustration-grid a:focus-visible {
+  border-color: var(--yellow);
+}
+
+.illustration-grid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+}
+
+.illustration-grid .illustration-transparent,
+.illustration-stage.illustration-transparent img {
+  background: repeating-conic-gradient(#efede6 0% 25%, #dedbd2 0% 50%) 0 0 / 24px 24px;
+}
+
+body:has(.illustration-dialog[open]) {
+  overflow: hidden;
+}
+
+.illustration-dialog {
+  width: min(72rem, calc(100% - 1.5rem));
+  max-width: none;
+  max-height: calc(100dvh - 1.5rem);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  color: var(--paper);
+  background: var(--ink-soft);
+}
+
+.illustration-dialog::backdrop {
+  background: rgba(10, 10, 13, 0.88);
+}
+
+.illustration-viewer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem clamp(0.65rem, 2vw, 1.25rem);
+}
+
+.illustration-viewer-bar h2 {
+  margin: 0;
+  font: 700 clamp(1rem, 2.5vw, 1.5rem)/1.15 "Syne", sans-serif;
+}
+
+.illustration-viewer-bar button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 1.35rem;
+  cursor: pointer;
+}
+
+.illustration-viewer-bar button:hover,
+.illustration-viewer-bar button:focus-visible {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+.illustration-stage {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  background: var(--ink);
+}
+
+.illustration-stage img {
+  display: block;
+  width: min(100%, max(12rem, calc((100dvh - 9.5rem) * 16 / 9)));
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+}
+
+.illustration-controls {
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 820px) {
+  .illustration-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
