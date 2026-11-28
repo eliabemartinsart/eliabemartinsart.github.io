@@ -2647,7 +2647,7 @@ img {
 
 .illustration-grid .illustration-transparent,
 .illustration-stage.illustration-transparent img {
-  background: repeating-conic-gradient(#efede6 0% 25%, #dedbd2 0% 50%) 0 0 / 24px 24px;
+  background-color: #f0f0f0;
 }
 
 body:has(.illustration-dialog[open]) {
